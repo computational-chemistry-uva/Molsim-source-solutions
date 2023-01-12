@@ -1,0 +1,135 @@
+ **************** GIBBS ***************
+  Generate Simple Cubic Lattice
+ Initialisation On Lattice: 
+       256 Particles Placed On A Lattice
+  Number Of Equilibration Cycles             :       100
+  Number Of Production Cycles                :      3000
+  Sample Frequency                           :         1
+
+  Number Of Att. To Displ. A Part. Per Cycle :       200
+  Maximum Displacement                       :     0.090
+  Number Of Att. To Change Volume  Per Cycle :         2
+  Maximum Change Volume                      :     0.010
+  Number Of Att. To Exch Part.  Per Cycle    :        20
+
+
+  Number Of Particles                        :       256
+  Temperature                                :     0.800
+  Pressure                                   :     0.000
+  Density Box 1                              :     0.310
+  Box 1 Length                               :     7.446
+  Density Box 1                              :     0.310
+  Box 2 Length                               :     7.446
+
+  Model Parameters: 
+     Epsilon: 1.000
+     Sigma  : 1.000
+     Mass   : 1.000
+ Box :   1
+ Total Energy Initial Configuration :   -536.65125
+ Total Virial Initial Configuration :    623.50164
+ Box :   2
+ Total Energy Initial Configuration :   -536.65125
+ Total Virial Initial Configuration :    623.50164
+  Start Equilibration 
+ ======>> Done           20  Out Of          100         127         129
+ Max. Displ. Set To      :  0.127 (Old :  0.090)
+ Frac. Acc.: 0.70 Attempts:    3991 Succes:    2808
+ Max. Vol. Chan. Set To:  0.015 (Old :  0.010)
+ Frac. Acc.: 0.98 Attempts:      51 Succes:      50
+ ======>> Done           40  Out Of          100         125         131
+ Max. Displ. Set To      :  0.152 (Old :  0.127)
+ Frac. Acc.: 0.60 Attempts:    3967 Succes:    2384
+ Max. Vol. Chan. Set To:  0.022 (Old :  0.015)
+ Frac. Acc.: 0.97 Attempts:      37 Succes:      36
+ ======>> Done           60  Out Of          100         127         129
+ Max. Displ. Set To      :  0.182 (Old :  0.152)
+ Frac. Acc.: 0.60 Attempts:    3955 Succes:    2358
+ Max. Vol. Chan. Set To:  0.034 (Old :  0.022)
+ Frac. Acc.: 0.89 Attempts:      47 Succes:      42
+ ======>> Done           80  Out Of          100         126         130
+ Max. Displ. Set To      :  0.211 (Old :  0.182)
+ Frac. Acc.: 0.58 Attempts:    3996 Succes:    2326
+ Max. Vol. Chan. Set To:  0.049 (Old :  0.034)
+ Frac. Acc.: 0.73 Attempts:      52 Succes:      38
+ ======>> Done          100  Out Of          100         126         130
+ Max. Displ. Set To      :  0.236 (Old :  0.211)
+ Frac. Acc.: 0.56 Attempts:    3986 Succes:    2230
+ Max. Vol. Chan. Set To:  0.074 (Old :  0.049)
+ Frac. Acc.: 0.83 Attempts:      46 Succes:      38
+ Number Of Att. To Displ. A Part.  :      19895
+ Success:      12106(= 60.85%)
+ Number Of Att. To Chan. Volume    :        233
+ Success:        204(= 87.55%)
+ Number Of Att. To Exchange Part.  :       2072
+ Success:         20(=  0.97%)
+ Box :   1
+ Total Energy End Of Simulation   :   -457.61271
+       Running Energy             :   -457.61271
+       Difference                 :   0.28990E-11
+ Total Virial End Of Simulation   :    -95.38671
+       Running Virial             :    -95.38671
+       Difference                 :   0.13278E-08
+ Box :   2
+ Total Energy End Of Simulation   :   -503.80449
+       Running Energy             :   -503.80449
+       Difference                 :   0.24215E-10
+ Total Virial End Of Simulation   :   -142.76806
+       Running Virial             :   -142.76806
+       Difference                 :   0.17408E-08
+ Chemical Potentials : 
+ Number Of Samples :         1036
+ Box 1  -3.140
+ Box 2  -3.074
+
+  Start Production 
+ ======>> Done          600  Out Of         3000         145         111
+ Max. Displ. Set To      :  0.270 (Old :  0.236)
+ Frac. Acc.: 0.57 Attempts:  119884 Succes:   68562
+ Max. Vol. Chan. Set To:  0.106 (Old :  0.074)
+ Frac. Acc.: 0.72 Attempts:    1221 Succes:     877
+ ======>> Done         1200  Out Of         3000         211          45
+ Max. Displ. Set To      :  0.285 (Old :  0.270)
+ Frac. Acc.: 0.53 Attempts:  119810 Succes:   63051
+ Max. Vol. Chan. Set To:  0.118 (Old :  0.106)
+ Frac. Acc.: 0.56 Attempts:    1236 Succes:     687
+ ======>> Done         1800  Out Of         3000         221          35
+ Max. Displ. Set To      :  0.232 (Old :  0.285)
+ Frac. Acc.: 0.41 Attempts:  119952 Succes:   48961
+ Max. Vol. Chan. Set To:  0.090 (Old :  0.118)
+ Frac. Acc.: 0.38 Attempts:    1197 Succes:     458
+ ======>> Done         2400  Out Of         3000         226          30
+ Max. Displ. Set To      :  0.225 (Old :  0.232)
+ Frac. Acc.: 0.48 Attempts:  120148 Succes:   58051
+ Max. Vol. Chan. Set To:  0.091 (Old :  0.090)
+ Frac. Acc.: 0.50 Attempts:    1180 Succes:     594
+ ======>> Done         3000  Out Of         3000         232          24
+ Max. Displ. Set To      :  0.220 (Old :  0.225)
+ Frac. Acc.: 0.49 Attempts:  120066 Succes:   58843
+ Max. Vol. Chan. Set To:  0.093 (Old :  0.091)
+ Frac. Acc.: 0.51 Attempts:    1175 Succes:     598
+ Number Of Att. To Displ. A Part.  :     599860
+ Success:     297468(= 49.59%)
+ Number Of Att. To Chan. Volume    :       6009
+ Success:       3214(= 53.49%)
+ Number Of Att. To Exchange Part.  :      60131
+ Success:        562(=  0.93%)
+ Box :   1
+ Total Energy End Of Simulation   :  -1248.71735
+       Running Energy             :  -1248.71735
+       Difference                 :   0.30491E-08
+ Total Virial End Of Simulation   :   -135.98123
+       Running Virial             :   -135.98123
+       Difference                 :   0.95335E-07
+ Box :   2
+ Total Energy End Of Simulation   :     -7.33717
+       Running Energy             :     -7.33717
+       Difference                 :  -0.39330E-09
+ Total Virial End Of Simulation   :    -35.74609
+       Running Virial             :    -35.74609
+       Difference                 :   0.16686E-08
+ Chemical Potentials : 
+ Number Of Samples :        30065
+ Box 1  -3.368
+ Box 2  -3.376
+

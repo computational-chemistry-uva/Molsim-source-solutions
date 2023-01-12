@@ -1,0 +1,33 @@
+#!/bin/csh -f
+# NSTEP     = NUMBER OF TIMESTEPS
+# NINIT     = NUMBER OF INITIALIZATION STEPS
+# TEMP      = TEMPERATURE
+# NCHOI     = NUMBER OF TRIAL POSITIONS
+# NUALL     = CHAIN LENGTH
+# LCBMC     = DO WE USE CBMC?  .true.  or   .false.
+# RCUT      = POTENTIAL CUT-OFF
+# A         = PREFACTOR NONBONDED POTENTIAL
+# KT        = BOND-BENDING CONSTANT
+# THETA0    = EQUILIBRIUM ANGLE [RADIANS]
+
+set NSTEP     = 500
+set NINIT     = 5
+set TEMP      = 2.0
+set NCHOI     = 1
+set LCBMC     = .true.
+set NUALL     = 10
+set RCUT      = 2.0
+set A         = 5.0
+set KT        = 2.0
+set THETA0    = 2.0
+
+cat > input <<endofdata
+$NSTEP   $NINIT $NUALL    $NCHOI
+$LCBMC
+$TEMP    $RCUT  $A        $KT      $THETA0
+endofdata
+time ../Source/polymer.exe
+mv fort.22 movie.pdb
+mv fort.23 results.dat
+rm input
+exit

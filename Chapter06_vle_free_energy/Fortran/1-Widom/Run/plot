@@ -1,0 +1,7 @@
+set xlabel 'cycle'
+set title 'equation of state of the Lennard-Jones fluid'
+set key top box
+set xrange[0:*]
+plot 'energy' us 1:2 title 'energy' with li lw 2,'pressure' us 1:2 title 'pressure' with li lw 2
+pause -1 "Hit return to continue"
+

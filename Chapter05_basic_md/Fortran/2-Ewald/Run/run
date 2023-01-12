@@ -1,0 +1,22 @@
+#!/bin/csh -f
+#
+# Ncell = Number Of Cells, Must Be Even (Npart=Ncell**3)
+# Alpha = Ewald Parameter
+# Kmax  = Number Of K-Vectors
+
+set ncell = 8
+
+foreach alpha (1.2d0)
+foreach kmax  (2 6 10 12)
+
+cat > fort.21 <<endofdata
+$ncell $alpha $kmax
+endofdata
+
+../Source/ewald.exe
+
+end
+end
+
+rm fort.21
+mv fort.22 lattice.dat

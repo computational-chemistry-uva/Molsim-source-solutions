@@ -1,0 +1,9 @@
+set nokey
+set grid
+set xrange[*:-2]
+set xlabel 'Chemical Potential [-]' 
+set ylabel 'Pressure [-]'
+set output 'chempress.eps'
+set term postscript eps enhanced color solid 26
+plot 'Results' us 2:3 w l, 'Results' us 2:3 w po lt 1 pt 5 ps 2
+

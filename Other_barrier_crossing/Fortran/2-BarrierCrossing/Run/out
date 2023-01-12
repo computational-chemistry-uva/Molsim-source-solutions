@@ -1,0 +1,10 @@
+ Barrier Crossing Of A Particle Over A Energy Barrier
+
+ Number Of Cycles      :          100
+ Number Of Md Steps    :         2000
+ Temperature           :   0.200000000000000     
+ Position Of Q(Star)   :   0.200000000000000     
+ Timestep              :   3.000000000000000E-003
+
+ P(Qstar)/P(A)         :   3.319347499787810E-003
+ Av. Energy Drift      :  1.890091083309861E-006

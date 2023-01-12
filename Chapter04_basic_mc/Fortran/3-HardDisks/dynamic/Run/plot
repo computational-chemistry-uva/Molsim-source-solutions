@@ -1,0 +1,9 @@
+set xlabel 'Radial distance r'
+set ylabel 'Radial distribution g(r)'
+set key top right width 0.5 box
+set grid
+set xrange[0:*]
+set yrange[0:4.0]
+set grid
+plot 'gyra2' us 1:2 with li lt 1 lw 3
+pause -1

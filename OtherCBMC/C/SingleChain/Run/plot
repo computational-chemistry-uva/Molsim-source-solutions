@@ -1,0 +1,6 @@
+set xlabel 'distance'
+set ylabel 'distribution'
+set title 'Distribution of End-To-End distance'
+set nokey
+plot 'results.dat' notitle with po,'results.dat' notitle with li
+pause -1 "Hit return to continue"

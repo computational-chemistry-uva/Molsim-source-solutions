@@ -1,0 +1,32 @@
+#! /bin/csh -f
+#
+# Scriptfile
+#
+# rho    = density
+# lmax   = number of steps
+# nequil = number of equilibration steps
+# dr     = maximum displacement
+# npart  = number of particles
+touch Points
+
+foreach rho (0.7 0.8 0.9)
+
+echo $rho >> Points
+
+echo 'starting rho ' ${rho}
+cat > input  <<endofdata
+  ibeg  nequil   lmax  nsamp  
+     0   20000   150000      1        
+    dr
+  0.09 
+ndispl
+    50  
+ npart    temp    rho
+   100     0.8  ${rho} 
+ epsilon sigma  mass  cutoff
+ 1.0     1.0    1.0   5.0
+endofdata
+time  ../Source/mc_nvt.exe > out_${rho}
+rm input
+end
+exit

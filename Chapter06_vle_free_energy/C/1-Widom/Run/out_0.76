@@ -1,0 +1,111 @@
+**************** Mc_Nvt ***************
+Initialisation on a lattice: 100 particles placed
+  Number Of Equilibration Cycles             : 20000
+  Number Of Production Cycles                : 150000
+  Sample Frequency                           : 1
+  Number Of Att. To Displ. A Part. Per Cycle : 50
+  Maximum Displacement                       : 0.090000
+  Number Of Particles                        : 100
+  Temperature                                : 0.800000
+  Density                                    : 0.760000
+  Box Length                                 : 5.086224
+  Model Parameters
+    Sigma                                    : 1.000000
+    Epsilon                                  : 1.000000
+    Mass                                     : 1.000000
+    CutOff                                   : 5.000000
+ Total Energy Initial Configuration: -394.678449
+ Total Virial Initial Configuration: 3171.375586
+ Start Equilibration
+Adjusting: 0 0
+======>> Done 0 out of 20000
+Adjusting: 50 20
+ Max. Displ. Set To : 0.072000
+ (Old : 0.090000)
+ Frac. Acc.: 0.400000
+ Attempts: 50
+ Succes: 20
+======>> Done 4000 out of 20000
+Adjusting: 200050 158973
+ Max. Displ. Set To : 0.108000
+ (Old : 0.072000)
+ Frac. Acc.: 0.794666
+ Attempts: 200050
+ Succes: 158973
+======>> Done 8000 out of 20000
+Adjusting: 400050 301204
+ Max. Displ. Set To : 0.162000
+ (Old : 0.108000)
+ Frac. Acc.: 0.752916
+ Attempts: 400050
+ Succes: 301204
+======>> Done 12000 out of 20000
+Adjusting: 600050 418129
+ Max. Displ. Set To : 0.225771
+ (Old : 0.162000)
+ Frac. Acc.: 0.696824
+ Attempts: 600050
+ Succes: 418129
+======>> Done 16000 out of 20000
+Adjusting: 800050 509898
+ Max. Displ. Set To : 0.287782
+ (Old : 0.225771)
+ Frac. Acc.: 0.637333
+ Attempts: 800050
+ Succes: 509898
+Number Of Att. To Displ. A Part.  : 1000000
+Success: 583381 (58.338100)
+ Total Energy End Of Simulation    : -511.301982
+       Running Energy              : -511.301982
+       Difference                  : 0.000000
+ Total Virial End Of Simulation    : -257.799025
+       Running Virial              : -257.799025
+       Difference                  : 0.000000
+ Start Production
+Adjusting: 0 0
+======>> Done 0 out of 150000
+Adjusting: 50 21
+ Max. Displ. Set To : 0.241737
+ (Old : 0.287782)
+ Frac. Acc.: 0.420000
+ Attempts: 50
+ Succes: 21
+======>> Done 30000 out of 150000
+Adjusting: 1500050 647859
+ Max. Displ. Set To : 0.208808
+ (Old : 0.241737)
+ Frac. Acc.: 0.431892
+ Attempts: 1500050
+ Succes: 647859
+======>> Done 60000 out of 150000
+Adjusting: 3000050 1382681
+ Max. Displ. Set To : 0.192474
+ (Old : 0.208808)
+ Frac. Acc.: 0.460886
+ Attempts: 3000050
+ Succes: 1382681
+======>> Done 90000 out of 150000
+Adjusting: 4500050 2165996
+ Max. Displ. Set To : 0.185286
+ (Old : 0.192474)
+ Frac. Acc.: 0.481327
+ Attempts: 4500050
+ Succes: 2165996
+======>> Done 120000 out of 150000
+Adjusting: 6000050 2971203
+ Max. Displ. Set To : 0.183506
+ (Old : 0.185286)
+ Frac. Acc.: 0.495196
+ Attempts: 6000050
+ Succes: 2971203
+Number Of Att. To Displ. A Part.  : 7500000
+Success: 3782187 (50.429160)
+ Total Energy End Of Simulation    : -507.993184
+       Running Energy              : -507.993184
+       Difference                  : 0.000000
+ Total Virial End Of Simulation    : -190.433562
+       Running Virial              : -190.433562
+       Difference                  : 0.000000
+Average Pressure                  : 0.108802
+Chemical Potential                : -3.970657
+Heat capacity                     : 53.465393

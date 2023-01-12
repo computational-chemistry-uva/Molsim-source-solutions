@@ -1,0 +1,8 @@
+set nokey
+set grid
+set xlabel 'Density [-]' 
+set ylabel 'Pressure [-]' 
+set output 'pressure.eps'
+set term postscript eps enhanced color solid 26
+plot 'Results' us 1:3 w l, 'Results' us 1:3 w po lt 1 pt 5 ps 2
+

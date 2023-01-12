@@ -1,0 +1,234 @@
+**************** GIBBS ***************
+Generate Simple Cubic Lattice
+Initialisation on Lattice: 
+256 Particles Placed on a Lattice 
+Number Of Equilibration Cycles             : 30000,
+Number Of Production Cycles                : 60000
+Sample Frequency                           :1
+Number Of Att. To Displ. a Part. per Cycle : 256
+Maximum Displacement                       : 0.090000
+Number Of Att. to Change Volume  per Cycle : 2
+Maximum Change Volume                      : 0.010000
+Number Of Att. to Exch Part.per Cycle    : 20
+Number Of Particles: 256
+Temperature: 0.800000
+Pressure: 0.000000
+Density Box 1: 0.600000
+Box 1 Length: 5.975206
+Density Box 2: 0.600000
+Box 2 Length: 5.975206
+Model Parameters
+Epsilon: 1.000000
+Sigma: 1.000000
+Mass: 1.000000
+Box: 0
+Total Energy Initial Configuration: 4579.273618
+Total Virial Initial Configuration: 81411.158294
+Box: 1
+Total Energy Initial Configuration: 4579.273618
+Total Virial Initial Configuration: 81411.158294
+Start Equilibration
+======>> Done 0 out of 30000 131 125
+Density: 0.614273
+Density: 0.585737
+Max. Displ. set to: 0.045 (Old: 0.09)
+Frac. Acc.: 0.24498 Attempts: 249 Success: 61
+Max. Vol. Change set to: 0.005 (Old: 0.01)
+Frac. Acc.: 0.25 Attempts: 4 Success: 1
+======>> Done 3000 out of 30000 105 151
+Density: 0.477879
+Density: 0.72966
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.790019 Attempts: 767833 Success: 606603
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.947889 Attempts: 5968 Success: 5657
+======>> Done 6000 out of 30000 97 159
+Density: 0.455587
+Density: 0.743844
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.790692 Attempts: 768211 Success: 607418
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.950625 Attempts: 6076 Success: 5776
+======>> Done 9000 out of 30000 95 161
+Density: 0.425262
+Density: 0.792031
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.783439 Attempts: 768093 Success: 601754
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.950759 Attempts: 5991 Success: 5696
+======>> Done 12000 out of 30000 98 158
+Density: 0.450185
+Density: 0.756059
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.781408 Attempts: 768023 Success: 600139
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.955299 Attempts: 5973 Success: 5706
+======>> Done 15000 out of 30000 90 166
+Density: 0.430908
+Density: 0.762148
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.783272 Attempts: 767944 Success: 601509
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.952189 Attempts: 5940 Success: 5656
+======>> Done 18000 out of 30000 86 170
+Density: 0.426467
+Density: 0.755523
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.78313 Attempts: 768219 Success: 601615
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.951744 Attempts: 6051 Success: 5759
+======>> Done 21000 out of 30000 80 176
+Density: 0.40639
+Density: 0.765846
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.784213 Attempts: 768216 Success: 602445
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.954468 Attempts: 5886 Success: 5618
+======>> Done 24000 out of 30000 74 182
+Density: 0.401883
+Density: 0.750412
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.78213 Attempts: 768027 Success: 600697
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.956781 Attempts: 6039 Success: 5778
+======>> Done 27000 out of 30000 66 190
+Density: 0.371768
+Density: 0.762634
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.780965 Attempts: 767952 Success: 599744
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.956101 Attempts: 5991 Success: 5728
+Number of Att. to Displ. a Part.: 7680868
+Success: 6021697 (= 78.398652 %)
+Number of Att. to Change Volume: 59887
+Success: 57063 (= 95.284452 %)
+Number of Att. to Exchange Part.: 599245
+Success: 950 (= 0.158533 %)
+Box: 0
+Total Energy End of Simulation: -186.918
+Running Energy: -186.918
+Difference: 9.27886e-09
+Total Virial End of Simulation: -194.69
+Running Virial: -194.69
+Difference: 2.33761e-07
+Number of particles: 60
+Volume of box: 166.16
+Density: 0.361097
+Box: 1
+Total Energy End of Simulation: -1031.55
+Running Energy: -1031.55
+Difference: -1.19069e-08
+Total Virial End of Simulation: -823.033
+Running Virial: -823.033
+Difference: 1.34421e-07
+Number of particles: 196
+Volume of box: 260.506
+Density: 0.752381
+------------------- 
+Chemical Potentials 
+Number of Samples: 299622
+Box 1: -4.22026
+Box 2: -4.55488
+Start Production
+======>> Done 0 out of 60000 60 196
+Density: 0.361541
+Density: 0.751792
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.775194 Attempts: 258 Success: 200
+Max. Vol. Change set to: 0.0133333 (Old: 0.01)
+Frac. Acc.: 0.666667 Attempts: 3 Success: 2
+======>> Done 6000 out of 60000 14 242
+Density: 0.108773
+Density: 0.812195
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.764774 Attempts: 1536264 Success: 1174895
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.964877 Attempts: 11958 Success: 11538
+======>> Done 12000 out of 60000 0 256
+Density: 0
+Density: 0.796281
+Max. Displ. set to: 0.134337 (Old: 0.09)
+Frac. Acc.: 0.746314 Attempts: 1535139 Success: 1145696
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.965913 Attempts: 11940 Success: 11533
+======>> Done 18000 out of 60000 1 255
+Density: 0.0107517
+Density: 0.764256
+Max. Displ. set to: 0.134264 (Old: 0.09)
+Frac. Acc.: 0.745909 Attempts: 1535879 Success: 1145626
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.973891 Attempts: 11988 Success: 11675
+======>> Done 24000 out of 60000 0 256
+Density: 0
+Density: 0.805741
+Max. Displ. set to: 0.13478 (Old: 0.09)
+Frac. Acc.: 0.748778 Attempts: 1535831 Success: 1149997
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.977176 Attempts: 12180 Success: 11902
+======>> Done 30000 out of 60000 1 255
+Density: 0.0101681
+Density: 0.776682
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.75082 Attempts: 1536073 Success: 1153314
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.975064 Attempts: 12031 Success: 11731
+======>> Done 36000 out of 60000 0 256
+Density: 0
+Density: 0.773684
+Max. Displ. set to: 0.135 (Old: 0.09)
+Frac. Acc.: 0.750705 Attempts: 1536388 Success: 1153374
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.975414 Attempts: 11958 Success: 11664
+======>> Done 42000 out of 60000 1 255
+Density: 0.0100648
+Density: 0.779077
+Max. Displ. set to: 0.13479 (Old: 0.09)
+Frac. Acc.: 0.748834 Attempts: 1535899 Success: 1150134
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.973735 Attempts: 11993 Success: 11678
+======>> Done 48000 out of 60000 1 255
+Density: 0.0106674
+Density: 0.765943
+Max. Displ. set to: 0.134873 (Old: 0.09)
+Frac. Acc.: 0.749292 Attempts: 1536293 Success: 1151132
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.975677 Attempts: 12005 Success: 11713
+======>> Done 54000 out of 60000 0 256
+Density: 0
+Density: 0.77783
+Max. Displ. set to: 0.134189 (Old: 0.09)
+Frac. Acc.: 0.745497 Attempts: 1536312 Success: 1145316
+Max. Vol. Change set to: 0.015 (Old: 0.01)
+Frac. Acc.: 0.972213 Attempts: 11984 Success: 11651
+Number of Att. to Displ. a Part.: 15360084
+Success: 11515254 (= 74.968692 %)
+Number of Att. to Change Volume: 119989
+Success: 116708 (= 97.265583 %)
+Number of Att. to Exchange Part.: 1199927
+Success: 802 (= 0.066837 %)
+ ######### Problems Virial ################ 
+Box: 0
+Total Energy End of Simulation: 0
+Running Energy: -2.26496e-07
+Difference: 2.26496e-07
+Total Virial End of Simulation: 0
+Running Virial: -3.11098e-06
+Difference: 3.11098e-06
+Number of particles: 0
+Volume of box: 94.2317
+Density: 0
+Box: 1
+Total Energy End of Simulation: -1372.58
+Running Energy: -1372.58
+Difference: -3.07436e-08
+Total Virial End of Simulation: -571.717
+Running Virial: -571.717
+Difference: 9.64428e-07
+Number of particles: 256
+Volume of box: 332.435
+Density: 0.770075
+------------------- 
+Chemical Potentials 
+Number of Samples: 599963
+Box 1: -3.45908
+Box 2: -4.52658

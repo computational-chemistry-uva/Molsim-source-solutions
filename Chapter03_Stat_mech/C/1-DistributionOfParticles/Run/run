@@ -1,0 +1,5 @@
+#! /bin/csh -f
+
+time ../Source/distribution.exe
+
+exit

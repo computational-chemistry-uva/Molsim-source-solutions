@@ -1,0 +1,8 @@
+set xlabel 'position x'
+set ylabel 'Probability'
+set title 'Umbrella sampling'
+set nokey
+set grid
+set yrange[0:*]
+plot 'Umbrella.dat' us 1:2 notitle with li lw 2
+pause -1 "Hit return to continue"

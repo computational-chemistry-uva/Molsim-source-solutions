@@ -1,0 +1,5 @@
+#! /bin/csh -f
+set ttype = type3
+cp w.${ttype}.dat w.dat
+time ../Source/ising.exe
+exit

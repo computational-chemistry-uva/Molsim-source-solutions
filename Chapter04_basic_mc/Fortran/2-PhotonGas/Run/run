@@ -1,0 +1,6 @@
+#! /bin/csh -f
+#
+
+time ../Source/test/photon.exe
+
+exit

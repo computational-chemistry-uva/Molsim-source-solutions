@@ -1,0 +1,6 @@
+set xlabel 'Magnetization'
+set ylabel 'distribution'
+set title 'Distribution of Magnetization'
+set key left top box
+plot 'magnetic.dat' us 1:2 title 'distribution during simulation' with li,'magnetic.dat' us 1:3 title 'corrected distribution' with li
+pause -1 "Hit return to continue"

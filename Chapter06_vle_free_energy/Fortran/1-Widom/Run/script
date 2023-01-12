@@ -1,0 +1,5 @@
+grep 'Chemical Potential' out* |cut -d : -f 3 > ChemPot;
+grep 'Average Pressure' out* |cut -d : -f 3 > AvPress;
+paste Points ChemPot AvPress > Results;
+
+
