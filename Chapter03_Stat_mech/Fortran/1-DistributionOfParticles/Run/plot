@@ -3,5 +3,10 @@ set ylabel 'Distribution (a.u.) '
 set title 'Distribution of N particles over p boxes'
 #set nokey
 set grid
+set term push
+set output "distribution.pdf"
+set term pdf color solid
 plot 'results.dat' notitle with li lw 2, 'analytical.dat' title 'analytical' w li lw 2
+set term pop
+rep
 pause -1 "Hit return to continue"
