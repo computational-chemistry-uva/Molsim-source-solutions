@@ -83,5 +83,7 @@ int main(void)
   if(NumberOfAcceptedMoves>0) Sample(WRITE_RESULTS);
   printf("Fraction succes : %f\n",(double)NumberOfAcceptedMoves/NumberOfAttemptedMoves);
 
+  fclose(FilePtr);
+
   return 0;
 }

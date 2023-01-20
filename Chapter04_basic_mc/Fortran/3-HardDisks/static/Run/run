@@ -4,5 +4,6 @@
 time ../Source/hard1.exe
 
 mv fort.21 gyra1
+mv fort.22 movie.pdb
 
 exit

@@ -8,10 +8,8 @@ C     Samples The Radial Distribution Function   C
 Cccccccccccccccccccccccccccccccccccccccccccccccccc
 
       Integer I,J,Maxx,Ichoise,A
-      Double Precision BoxSize
 
       Parameter(Maxx = 500)
-      Parameter(BoxSize = 10.0)
 
       Double Precision Ngr,Gg(Maxx),Delta,R2,DX,DY,R,ab,nid
 

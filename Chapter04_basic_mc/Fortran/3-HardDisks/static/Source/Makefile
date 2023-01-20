@@ -15,7 +15,7 @@ EXECS         =	hard1.exe
 
 INCS	      =	system.inc
 
-OBJ1	      =	hard1.o ran_uniform.o sample.o sstmm.o
+OBJ1	      =	hard1.o writepdb.o ran_uniform.o sample.o sstmm.o
 
 all:		$(PROG1)
 
