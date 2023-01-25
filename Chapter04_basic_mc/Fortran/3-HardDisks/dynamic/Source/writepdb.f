@@ -3,13 +3,12 @@
 
       Include 'system.inc'
       
-      Integer I,Countmodel,Countatom
+      Integer I,Countmodel
       Double Precision Z
 
       Data Countmodel/ 0/
-      Data Countatom/ 0/
 
-      Save Countmodel,Countatom
+      Save Countmodel
 
       Z          = 0.0d0
       Countmodel = Countmodel + 1
@@ -21,10 +20,8 @@
 
       Do I=1,Npart
 
-         Countatom = Countatom + 1
-
          Write(22,'(A6,I5,1x,A4,1x,3x,1x,4x,1x,4x,3f8.3,12x,10x,A2)') 
-     &        'ATOM  ',Countatom,' H  ',
+     &        'ATOM  ',I,' H  ',
      &        2.0d0 * X(I),2.0d0 * Y(I), 2.0d0 * Z,' H'
       Enddo
 

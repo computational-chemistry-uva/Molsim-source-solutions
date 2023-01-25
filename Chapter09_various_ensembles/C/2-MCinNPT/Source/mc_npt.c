@@ -18,7 +18,7 @@ int main(void)
   double MaximumDisplacement,MaximumVolumeChange;
   double Pressure,Beta,Vnew,Vold,Boxold;
   double VolumeSum,VolumeCount;
-  double Box,r2;
+  double r2;
   FILE *FilePtr;
   VECTOR dr,pos;
       

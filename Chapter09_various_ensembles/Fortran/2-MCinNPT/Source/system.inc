@@ -2,6 +2,6 @@
 
       Parameter (MaxParticles = 1000)
 
-      Double Precision X(MaxParticles),Y(MaxParticles),Z(MaxParticles)
+      Double Precision Box, X(MaxParticles),Y(MaxParticles),Z(MaxParticles)
 
-      Common /Sstt/ X,Y,Z,NumberOfParticles
+      Common /Sstt/ Box, X,Y,Z,NumberOfParticles

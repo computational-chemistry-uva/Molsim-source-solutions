@@ -15,7 +15,7 @@ Ccccccccccccccccccccccccccccccccccccccccccc
      &     AcceptedDisplacements,Xnew,Ynew,Znew,MaximumDisplacement,
      &     MaximumVolumeChange,TrialVolumeChanges,AcceptedVolumeChanges,
      &     Xold(1000),Yold(1000),Zold(1000),Beta,Pressure,Vnew,Vold,Boxold,
-     &     Box,Dx,Dy,Dz,VolumeCount,VolumeSum,M1
+     &     Dx,Dy,Dz,VolumeCount,VolumeSum,M1
 
       Parameter (CycleMultiplication=1000)
       

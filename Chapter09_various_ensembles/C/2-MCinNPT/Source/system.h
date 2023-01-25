@@ -15,6 +15,7 @@ typedef struct
   double z;
 } VECTOR;
 
+extern double Box;    // Simulation Box Length
 extern VECTOR Positions[MAX_NUMBER_OF_PARTICLES];
 extern VECTOR OldPositions[MAX_NUMBER_OF_PARTICLES];
 extern int NumberOfParticles;
