@@ -124,7 +124,7 @@ c     dummy2: the virial, which we do not need here.
             Endif
           Endif
             
-          If(Mod(Icycl,20).Eq.0) Call Writepdb(22)
+          If(Mod(Icycl,100).Eq.0) Call Writepdb(22)
 
           If (Mod(Icycl,NumberOfCycles/5).Eq.0) Then
             Write (6, *) '======>> Done ', Icycl, ' Out Of ', NumberOfCycles

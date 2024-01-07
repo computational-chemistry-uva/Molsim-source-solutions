@@ -114,7 +114,7 @@ int main(void)
         }
       }
 
-      if((j%20)==0) WritePdb(FilePtrMovie);
+      if((j%100)==0) WritePdb(FilePtrMovie);
 
       if((j%(NumberOfCyles/5))==0)
       {
