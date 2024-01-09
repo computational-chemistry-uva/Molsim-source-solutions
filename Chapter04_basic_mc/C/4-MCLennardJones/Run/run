@@ -8,11 +8,11 @@
 # dr     = maximum displacement
 # npart  = number of particles
 
-foreach rho ( 0.1 ) 
+foreach rho ( 0.01 0.05 0.1 0.2 0.5) 
 
 cat > input  <<endofdata
   ibeg  nequil   lmax  nsamp  
-     0  10000    10000      1        
+     0  10000    10000    1        
     dr
   0.09 
 ndispl

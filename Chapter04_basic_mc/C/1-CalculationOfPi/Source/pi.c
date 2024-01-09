@@ -16,7 +16,7 @@
 
 int main(void)
 {
-  int i,j,k,NumberOfCycles;
+  int i,j,NumberOfCycles;
   double ratio,x,y,pi;
   double NumberOfHits,NumberOfTrials;
 
@@ -39,33 +39,27 @@ int main(void)
   NumberOfTrials=0.0;
 
   // loop over all cycles
-  for(k=0;k<NR_COUNTS;k++)
+  for(i=0;i<NumberOfCycles;i++)
   {
-    pi=0.0;
-    NumberOfHits=0.0;
-    NumberOfTrials=0.0;
-    for(i=0;i<NumberOfCycles;i++)
+    for(j=0;j<CycleMultiplication;j++)
     {
-      for(j=0;j<CycleMultiplication;j++)
-      {
       // generate a random point
       // check if it is in the circle
       // NumberOfTrial = number of points
       // NumberOfHits  = number in the circle
 
       // Start Modifications
-        x=(RandomNumber()-0.5)*ratio;
-        y=(RandomNumber()-0.5)*ratio;
+      x=(RandomNumber()-0.5)*ratio;
+      y=(RandomNumber()-0.5)*ratio;
 
-        if(sqrt(x*x+y*y)<0.5) 
-          NumberOfHits+=1.0;
+      if(sqrt(x*x+y*y)<0.5) 
+        NumberOfHits+=1.0;
 
-        NumberOfTrials+=1.0;
+      NumberOfTrials+=1.0;
       // End Modifications
-       }
-     // Remember that we are using r = 0.5d.
-     pi=4*SQR(ratio)*NumberOfHits/NumberOfTrials;
-   }
+    }
+    // Remember that we are using r = 0.5d.
+    pi=4*SQR(ratio)*NumberOfHits/NumberOfTrials;
   }
   printf("Estimate of Pi : %f\n",pi);
   printf("Real Pi        : %f\n",M_PI);

@@ -1,10 +1,18 @@
 set xlabel 'Density {/Symbol r}^*'
 set ylabel 'Pressure p^*'
-set key left top Left box
-set xrange[1e-2:*]
+set key right bottom Left box
+set xrange[1e-3:*]
 set yrange[1e-4:*]
 set log
-set output 'mc_pressure.eps'
-set term postscript eps enhanced color solid 26
-plot 'data_0.5' us 1:2 title 'T=0.5' smooth cspl with li lt 13 lw 3,'data_1.0' us 1:2 title 'T=1.0' smooth cspl with li lt 12 lw 3,'data_2.0' us 1:2 title 'T=2.0' smooth cspl with li lt 11 lw 3,'data_4.0' us 1:2 title 'T=2.0' smooth cspl with li lt 10 lw 3,'data_0.5' us 1:2 notitle with po lt 13 lw 1 pt 4 ps 1,'data_1.0' us 1:2 notitle with po lt 12 lw 1 pt 4 ps 1,'data_2.0' us 1:2 notitle with po lt 11 lw 1 pt 4 ps 1,'data_4.0' us 1:2 notitle with po lt 10 lw 1 pt 4 ps 1,0.5*x notitle with li lt 13 lw 1,x notitle with li lt 12 lw 1,2.0*x notitle with li lt 11 lw 1
-
+set term push
+set output 'mc_pressure.pdf'
+set term pdf color solid
+set multiplot
+filelist_scatter=system("ls scatter-*.dat")
+plot for [filename in filelist_scatter] filename title filename with dots
+filelist_results=system("ls results-*.dat")
+replot for [filename in filelist_results] filename notitle with po pt 5 ps 1
+unset multiplot
+set term pop
+rep
+pause -1 "Hit return to continue"

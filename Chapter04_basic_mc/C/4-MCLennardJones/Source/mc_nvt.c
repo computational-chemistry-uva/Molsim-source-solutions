@@ -22,7 +22,11 @@ int main(void)
   // initialize system
   ReadInputData();
 
-  FilePtr=fopen("results.dat","w");
+  char filename[256];
+  double density = (double)(NumberOfParticles) / CUBE(Box);
+  sprintf(filename, "scatter-%g.dat", density);
+  FilePtr=fopen(filename,"w");
+
   FilePtrMovie=fopen("movie.pdb","w");
 
   NumberOfCyles=0;
@@ -162,6 +166,14 @@ int main(void)
            ((1.0/3.0)*pow(Sigma/CutOff,9)-pow(Sigma/CutOff,3))));
         printf("Heat capacity                     : %lf\n",
           ((EnergySquaredSum/EnergyCount)-SQR(EnergySum/EnergyCount))/SQR(Temp)/NumberOfParticles);
+
+        // write average pressure to file
+        char filename[256];
+        double density = (double)(NumberOfParticles) / CUBE(Box);
+        sprintf(filename, "results-%g.dat", density);
+        FILE *ResultsFilePtr=fopen(filename,"w");
+        fprintf(ResultsFilePtr,"%lf %lf\n", density, PressureSum/PressureCount);
+        fclose(ResultsFilePtr);
       }
     }
   }

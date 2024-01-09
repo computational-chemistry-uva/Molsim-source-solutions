@@ -26,8 +26,8 @@ C
          Pressure = 0.0d0
       End If
 
-      Write (66, *) I, Energy
-      Write (67, *) I, Pressure
+      Write (66, *) Dble(NumberOfParticles)/Volume, Energy
+      Write (67, *) Dble(NumberOfParticles)/Volume, Pressure
 
       Return
       End

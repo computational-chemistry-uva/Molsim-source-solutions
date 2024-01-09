@@ -183,6 +183,7 @@ C     &           -(1.0d0/Beta)*(2.0d0*(8.0d0/3.0d0)*4.0d0*Atan(1.0)*
      &           (1.0d0/Beta)*(2.0d0*(8.0d0/3.0d0)*4.0d0*Atan(1.0)*
      &             Eps*(Dble(NumberOfParticles)/(Box*Box*Box))*
      &             ((1.0d0/3.0d0)*(Sig/Rc**9-(Sig/Rc)**3))) 
+            Write(68,*) Dble(NumberOfParticles)/(Box*Box*Box), PressureSum/PressureCount
           End If
         End If
       End Do

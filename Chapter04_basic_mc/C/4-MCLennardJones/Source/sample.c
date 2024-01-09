@@ -11,10 +11,10 @@ void Sample(int i,double En,double Vir,double *Pressure,FILE *FilePtr)
 {
   double Enp,Vol;
  
+  Vol=CUBE(Box);
   if(NumberOfParticles>0)
   {
     Enp=En/NumberOfParticles;
-    Vol=CUBE(Box);
     *Pressure=(NumberOfParticles/Vol)/Beta+Vir/(3.0*Vol);
     *Pressure+=(16.0/3.0)*M_PI*Epsilon*SQR(NumberOfParticles/Vol)*
         ((2.0/3.0)*pow(Sigma/CutOff,9)-pow(Sigma/CutOff,3));
@@ -24,5 +24,5 @@ void Sample(int i,double En,double Vir,double *Pressure,FILE *FilePtr)
     Enp=0.0;
     *Pressure=0.0;
   }
-  fprintf(FilePtr,"%lf %lf\n",Enp,*Pressure);
+  fprintf(FilePtr,"%lf %lf\n",(NumberOfParticles/Vol),*Pressure);
 }

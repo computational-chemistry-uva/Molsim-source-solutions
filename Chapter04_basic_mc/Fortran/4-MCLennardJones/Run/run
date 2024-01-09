@@ -8,11 +8,11 @@
 # dr     = maximum displacement
 # npart  = number of particles
 
-foreach rho (0.90)
+foreach rho (0.01 0.05 0.10 0.2 0.4)
 
 cat > input  <<endofdata
   ibeg  nequil   lmax  nsamp  
-     0   5000    10000      1        
+     0   5000    100000      1        
     dr
   0.09 
 ndispl
@@ -24,8 +24,9 @@ ndispl
 endofdata
 
 time  ../Source/mc_nvt.exe
-mv fort.66 energy
-mv fort.67 pressure
+mv fort.66 energy-${rho}.dat
+mv fort.67 scatter-${rho}.dat
+mv fort.68 results-${rho}.dat
 rm input
 end
 exit
