@@ -24,4 +24,5 @@ ax.set_ylim(0, 4.0)
 for fn, d in data.items():
     ax.plot(*d.T, label=fn)
 ax.legend()
+plt.savefig("plot.png")
 plt.show()

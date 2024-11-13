@@ -24,7 +24,8 @@ ax.set_ylim(0, 2)
 
 # plot results and theoretical line
 x = np.linspace(0.0, 5.0, 1000)
-ax.plot(x, 1.0 / (np.exp(x)-1), label="1/(exp(x)-1)")
-ax.scatter(*data.T, label="theoretical", c="black", marker="x")
+ax.plot(x, 1.0 / (np.exp(x)-1), label="theoretical, 1/(exp(x)-1)")
+ax.scatter(*data.T, label="simulation", c="black", marker="x")
 ax.legend()
+plt.savefig("plot.png")
 plt.show()

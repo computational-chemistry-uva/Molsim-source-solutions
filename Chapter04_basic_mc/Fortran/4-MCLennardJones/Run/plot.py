@@ -23,4 +23,5 @@ for fname in glob.glob('results-*.dat'):
     data=np.loadtxt(fname, ndmin=2)
     x, y = data[:,0], data[:,1]
     plt.plot(x, y, c="black", marker="x", markersize=10)
+plt.savefig("plot.png")
 plt.show()
