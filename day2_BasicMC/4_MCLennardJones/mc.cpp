@@ -41,7 +41,7 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
   cutOffEnergy = epsilon * numberOfParticles * (8.0 / 3.0) * M_PI * density * ((1.0 / 3.0) * r3i * r3i * r3i - r3i);
   cutOffVirial = epsilon * (16.0 / 3.0) * M_PI * density * density * ((2.0 / 3.0) * r3i * r3i * r3i - r3i);
 
-  // empty movie.pdb file
+  // Empty movie.pdb file
   std::ofstream file("movie.pdb");
   file.close();
 
@@ -49,12 +49,12 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
   logger.info("Class MC created.");
   logger.debug(repr());
 
-  // Calculate number of grid points and grid spacing based on number of
-  // particles
+  // Calculate number of grid points and grid spacing based on number of particles
   size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 1.5));
   double gridSize = boxSize / (static_cast<double>(numGrids) + 2.0);
   logger.debug("numGrids " + std::to_string(numGrids) + " gridSize " + std::to_string(gridSize));
 
+  // Initialize particle positions on a grid with slight random perturbations
   size_t counter = 0;
   for (size_t i = 0; i < numGrids; ++i)
   {
@@ -87,12 +87,15 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
 void MonteCarlo::translationMove(size_t particleIdx)
 {
   numberOfAttemptedMoves++;
+  // Generate random displacement
   double3 displacement = maxDisplacement * (double3(uniform(), uniform(), uniform()) - 0.5);
   double3 newPosition = positions[particleIdx] + displacement;
 
+  // Calculate old and new energy and virial
   EnergyVirial oldEnergyVirial = particleEnergyVirial(positions[particleIdx], particleIdx);
   EnergyVirial newEnergyVirial = particleEnergyVirial(newPosition, particleIdx);
 
+  // Accept or reject the move based on Metropolis criterion
   if (uniform() < std::exp(-beta * (newEnergyVirial.energy - oldEnergyVirial.energy)))
   {
     numberOfAcceptedMoves++;
@@ -104,6 +107,7 @@ void MonteCarlo::translationMove(size_t particleIdx)
 EnergyVirial MonteCarlo::particleEnergyVirial(double3 position, size_t particleIdx)
 {
   EnergyVirial particleEnergyVirial;
+  // Compute energy and virial contributions from interactions with other particles
   for (size_t i = 0; i < numberOfParticles; i++)
   {
     if (i != particleIdx)
@@ -127,10 +131,12 @@ EnergyVirial MonteCarlo::particleEnergyVirial(double3 position, size_t particleI
 EnergyVirial MonteCarlo::systemEnergyVirial()
 {
   EnergyVirial systemEnergyVirial;
+  // Sum energy and virial contributions from all particles
   for (size_t i = 0; i < numberOfParticles; i++)
   {
     systemEnergyVirial += particleEnergyVirial(positions[i], i);
   }
+  // Avoid double counting
   systemEnergyVirial.energy /= 2.0;
   systemEnergyVirial.virial /= 2.0;
   systemEnergyVirial.energy += cutOffEnergy;
@@ -139,6 +145,7 @@ EnergyVirial MonteCarlo::systemEnergyVirial()
 
 void MonteCarlo::computePressure()
 {
+  // Compute pressure using virial theorem and record it
   pressure = (density / beta) + (runningEnergyVirial.virial / (3.0 * volume));
   pressure += cutOffVirial;
   pressures.push_back(pressure);
@@ -146,6 +153,7 @@ void MonteCarlo::computePressure()
 
 void MonteCarlo::computeChemicalPotential()
 {
+  // Estimate chemical potential by inserting random particles
   EnergyVirial chemPotEV;
   for (size_t k = 0; k < 10; k++)
   {
@@ -161,6 +169,7 @@ void MonteCarlo::computeHeatCapacity() {}
 
 void MonteCarlo::optimizeMaxDisplacement()
 {
+  // Adjust max displacement to maintain optimal acceptance ratio
   double acceptance = numberOfAcceptedMoves / numberOfAttemptedMoves;
   double scaling = std::clamp(2.0 * acceptance, 0.5, 1.5);
   maxDisplacement = std::clamp(scaling * maxDisplacement, 0.0001, 0.25 * boxSize);
@@ -168,16 +177,19 @@ void MonteCarlo::optimizeMaxDisplacement()
 
 void MonteCarlo::run()
 {
+  // Main simulation loop
   size_t numberOfAttemptedMoves = 0;
   size_t numberOfAcceptedMoves = 0;
   for (cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; ++cycle)
   {
+    // Attempt translation moves
     for (size_t i = 0; i < numberOfParticles; ++i)
     {
       size_t particleIdx = static_cast<size_t>(uniform() * numberOfParticles);
       translationMove(particleIdx);
     }
 
+    // Every sampleFrequency cycles, compute and log properties
     if (cycle % sampleFrequency == 0)
     {
       totalEnergyVirial = systemEnergyVirial();
@@ -186,6 +198,7 @@ void MonteCarlo::run()
       frameNumber++;
 
       optimizeMaxDisplacement();
+      // If in production phase, compute observables
       if (cycle > numberOfInitCycles)
       {
         computePressure();
@@ -194,7 +207,6 @@ void MonteCarlo::run()
       }
     }
   }
-
 
   totalEnergyVirial = systemEnergyVirial();
   logger.info(repr());
