@@ -2,6 +2,7 @@
 **/*cmake
 **/CmakeCache.txt
 **/CMakeFiles
+**/build/
 
 # Prerequisites
 *.d

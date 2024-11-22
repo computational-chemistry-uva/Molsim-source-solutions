@@ -1,1 +1,0 @@
-/var/folders/fp/ppyff45x5cj4hj___g1kwp4w0000gn/T/tmpy0fqvetf/wheel/platlib/./molsim.cpython-311-darwin.so

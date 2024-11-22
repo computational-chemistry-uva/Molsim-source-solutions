@@ -1,8 +1,0 @@
-{
-  "source_dir": "/Users/youriran/teaching/fork/molsim-source-solutions",
-  "build_dir": "/Users/youriran/teaching/fork/molsim-source-solutions/build/python",
-  "cmake_path": "/opt/homebrew/bin/cmake",
-  "skbuild_path": "/private/var/folders/fp/ppyff45x5cj4hj___g1kwp4w0000gn/T/pip-build-env-x8i17joo/overlay/lib/python3.11/site-packages/scikit_build_core",
-  "skbuild_version": "0.10.7",
-  "python_executable": "/Users/youriran/micromamba/envs/compchem/bin/python"
-}
