@@ -1,0 +1,20 @@
+#!/bin/csh -f
+#
+# Ncell = Number Of Cells, Must Be Even (Npart=Ncell**3)
+# Alpha = Ewald Parameter
+# Kmax  = Number Of K-Vectors
+
+set ncell = 10
+set alpha = 1.0
+set kmax = 32
+
+#foreach alpha ( 1.2 )
+#foreach kmax  ( 2 6 10 12 25 50)
+
+cat > input <<endofdata
+$ncell $alpha $kmax
+endofdata
+../Source/ewald.exe
+rm input
+end
+end
