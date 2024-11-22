@@ -9,14 +9,13 @@
 #include <vector>
 
 HardDisks::HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_t numberOfParticles,
-                     double maxDisplacement, size_t sampleFrequency, double boxSize, size_t rdfBins, Method method)
+                     double maxDisplacement, size_t sampleFrequency, double boxSize, size_t rdfBins, bool runStatic)
     : numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
       numberOfParticles(numberOfParticles),
       maxDisplacement(maxDisplacement),
       sampleFrequency(sampleFrequency),
       boxSize(boxSize),
-      method(method),
       positions(numberOfParticles),
       rdf(rdfBins),
       rdfBins(rdfBins)
@@ -24,6 +23,8 @@ HardDisks::HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_
   initialize();
   delta = 0.5 * boxSize / (static_cast<double>(rdfBins));
   halfBoxSizeSq = 0.25 * boxSize * boxSize;
+
+  method = runStatic ? Method::Static : Method::Dynamic;
 }
 
 void HardDisks::initialize()
@@ -193,21 +194,4 @@ pybind11::array_t<double> HardDisks::getRDF()
     normalizedRDF[i] = 4.0 * rdf[i] * invDensitySq / (areaDiff * static_cast<double>(numberOfSamples));
   }
   return pybind11::array_t<double>(normalizedRDF.size(), normalizedRDF.data());
-}
-
-PYBIND11_MODULE(HardDisks, m)
-{
-  pybind11::class_<HardDisks>(m, "HardDisks")
-      .def(pybind11::init<size_t, size_t, size_t, double, size_t, double, size_t, HardDisks::Method>(),
-           pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"), pybind11::arg("numberOfParticles"),
-           pybind11::arg("maxDisplacement"), pybind11::arg("sampleFrequency"), pybind11::arg("boxSize"),
-           pybind11::arg("rdfBins"), pybind11::arg("method"))
-      .def("run", &HardDisks::run)
-      .def("getRDF", &HardDisks::getRDF)
-      .def_readonly("acceptanceRatio", &HardDisks::acceptanceRatio);
-
-  pybind11::enum_<HardDisks::Method>(m, "Method")
-      .value("Dynamic", HardDisks::Method::Dynamic)
-      .value("Static", HardDisks::Method::Static)
-      .export_values();
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -6,7 +8,7 @@
 
 #include "double3.h"
 
-void writePDB(const std::string& fileName, std::vector<double3>& positions, double& boxSize, size_t& frameNumber)
+static void writePDB(const std::string &fileName, std::vector<double3> &positions, double &boxSize, size_t &frameNumber)
 {
   std::ofstream file(fileName, std::ios::app);
 

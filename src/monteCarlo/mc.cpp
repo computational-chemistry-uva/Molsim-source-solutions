@@ -219,7 +219,8 @@ std::string MonteCarlo::repr()
   EnergyVirial drift = (runningEnergyVirial - totalEnergyVirial);
 
   double averageChemicalPotential = average(chemicalPotentials);
-  double realChemPot = chemicalPotentials.size() ? -temperature * (std::log(averageChemicalPotential / density) + cutOffEnergy) : 0.0;
+  double realChemPot =
+      chemicalPotentials.size() ? -temperature * (std::log(averageChemicalPotential / density) + cutOffEnergy) : 0.0;
 
   s += "Monte Carlo program\n";
   s += "----------------------------\n";
@@ -244,16 +245,4 @@ std::string MonteCarlo::repr()
   s += "Average Heat Cap.    : " + std::to_string(average(heatCapacities)) + "\n";
   s += "\n";
   return s;
-}
-
-PYBIND11_MODULE(mc, m)
-{
-  pybind11::class_<MonteCarlo>(m, "MonteCarlo")
-      .def(pybind11::init<size_t, double, double, double, size_t, size_t, size_t, double, double, size_t, size_t>(),
-           pybind11::arg("numberOfParticles"), pybind11::arg("temperature"), pybind11::arg("boxSize"),
-           pybind11::arg("maxDisplacement"), pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"),
-           pybind11::arg("sampleFrequency") = 100, pybind11::arg("sigma") = 1.0, pybind11::arg("epsilon") = 1.0,
-           pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
-      .def("__repr__", &MonteCarlo::repr)
-      .def("run", &MonteCarlo::run);
 }

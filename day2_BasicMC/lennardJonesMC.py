@@ -1,4 +1,4 @@
-from mc import MonteCarlo
+from molsim import MonteCarlo
 
 mc = MonteCarlo(
     numberOfParticles=100,

@@ -1,21 +1,13 @@
+#pragma once
+
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
-#include <iostream>
 #include <random>
 #include <string>
 #include <vector>
 
-struct double2
-{
-  double x;
-  double y;
-
-  double2(double x = 0.0, double y = 0.0) : x(x), y(y) {};
-};
-double dot(const double2& a, const double2& b) { return a.x * b.x + a.y * b.y; };
-double2 operator+(const double2& a, const double2& b) { return double2(a.x + b.x, a.y + b.y); };
-double2 operator-(const double2& a, const double2& b) { return double2(a.x - b.x, a.y - b.y); };
+#include "double2.h"
 
 struct HardDisks
 {
@@ -51,7 +43,7 @@ struct HardDisks
   std::mt19937 gen{rd()};
 
   HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_t numberOfParticles, double maxDisplacement,
-            size_t sampleFrequency, double boxSize, size_t rdfBins, Method method);
+            size_t sampleFrequency, double boxSize, size_t rdfBins, bool runStatic);
 
   void initialize();
   void run();
