@@ -72,6 +72,19 @@ static double average(std::vector<double> &data)
   return (data.size()) ? std::accumulate(data.begin(), data.end(), 0.0) / static_cast<double>(data.size()) : 0.0;
 }
 
+
+static double variance(std::vector<double> &data)
+{
+  double size = static_cast<double>(data.size());
+  if (size == 0.0)
+  {
+    return 0.0;
+  }
+  double mean = std::accumulate(data.begin(), data.end(), 0.0) / size;
+  double meanOfSquares = std::inner_product(data.begin(), data.end(), data.begin(), 0.0) / size;
+  return meanOfSquares - mean * mean;
+}
+
 /**
  * @brief Calculates the block average and variance of a dataset.
  *

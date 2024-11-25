@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utils.h"
+
 /**
  * \brief Represents the energy and virial of a system or particle.
  *
@@ -19,19 +21,87 @@ struct EnergyVirial
    */
   EnergyVirial(double energy = 0.0, double virial = 0.0) : energy(energy), virial(virial) {};
 
-  EnergyVirial &operator+=(const EnergyVirial &other)
+  EnergyVirial& operator+=(const EnergyVirial& other)
   {
     this->energy += other.energy;
     this->virial += other.virial;
     return *this;
   };
 };
-static inline EnergyVirial operator-(const EnergyVirial &a, const EnergyVirial &b)
+static inline EnergyVirial operator-(const EnergyVirial& a, const EnergyVirial& b)
 {
   return {a.energy - b.energy, a.virial - b.virial};
 };
 
-static inline EnergyVirial operator/(const EnergyVirial &a, const EnergyVirial &b)
+static inline EnergyVirial operator+(const EnergyVirial& a, const EnergyVirial& b)
+{
+  return {a.energy + b.energy, a.virial + b.virial};
+};
+
+static inline EnergyVirial operator/(const EnergyVirial& a, const EnergyVirial& b)
 {
   return {a.energy / b.energy, a.virial / b.virial};
 };
+
+/**
+ * \brief Calculates the energy and virial for a particle.
+ *
+ * Computes the energy and virial contributions of a particle at a given position.
+ *
+ * \param position Position of the particle.
+ * \param particleIdx Index of the particle.
+ * \param startIndex Start loop over other particles from this index, allowing lower triangular computation
+ * \return EnergyVirial object containing energy and virial.
+ */
+static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, const double3& particlePosition,
+                                         size_t particleIdx, const double& boxSize, const double& cutOff,
+                                         const double& sigma, const double& epsilon)
+{
+  EnergyVirial particleEnergyVirial;
+  double cutOffSquared = cutOff * cutOff;
+  // Compute energy and virial contributions from interactions with other particles
+  for (size_t i = 0; i < positions.size(); i++)
+  {
+    if (i != particleIdx)
+    {
+      double3 dr = particlePosition - positions[i];
+      dr = wrap(dr, boxSize);
+      double r2 = double3::dot(dr, dr);
+      if (r2 < cutOffSquared)
+      {
+        double r2i = (sigma * sigma) / r2;
+        double r6i = r2i * r2i * r2i;
+
+        particleEnergyVirial.energy += 4.0 * epsilon * (r6i * r6i - r6i);
+        particleEnergyVirial.virial += 48.0 * epsilon * (r6i * r6i - 0.5 * r6i);
+      }
+    }
+  }
+  return particleEnergyVirial;
+}
+
+/**
+ * \brief Calculates the total energy and virial of the system.
+ *
+ * Computes the total energy and virial contributions of all particles.
+ *
+ * \return EnergyVirial object containing total energy and virial.
+ */
+static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, const double& boxSize, const double& cutOff,
+                                const double& sigma, const double& epsilon, EnergyVirial cutOffPrefactor)
+{
+  double volume = boxSize * boxSize * boxSize;
+  double density = positions.size() / volume;
+
+  EnergyVirial systemEnergyVirial;
+  for (size_t i = 0; i < positions.size(); i++)
+  {
+    systemEnergyVirial += particleEnergyVirial(positions, positions[i], i, boxSize, cutOff, sigma, epsilon);
+  }
+  systemEnergyVirial.energy /= 2.0;
+  systemEnergyVirial.virial /= 2.0;
+
+  systemEnergyVirial.energy += cutOffPrefactor.energy * density;
+  systemEnergyVirial.virial += cutOffPrefactor.virial * density * density;
+  return systemEnergyVirial;
+}
