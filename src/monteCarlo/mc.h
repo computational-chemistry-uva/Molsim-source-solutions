@@ -21,25 +21,29 @@ struct MonteCarlo
   size_t numberOfParticles;
   double temperature;
   double boxSize;
-  double maxDisplacement;
   double sigma;
   double epsilon;
   size_t numberOfInitCycles;
   size_t numberOfProdCycles;
   size_t sampleFrequency;
+  double maxDisplacement;
+  double translationProbability;
+  double pressure;
+  double volumeProbability;
+  double maxVolumeChange;
+  double swapProbability;
 
   double cutOff;
-  double cutOffSquared;
-  double cutOffEnergy;
-  double cutOffVirial;
-  double chemPotConversion;
+  EnergyVirial cutOffPrefactor;
   double volume;
   double density;
   double beta;
 
   size_t cycle;
-  double numberOfAttemptedMoves{0};
-  double numberOfAcceptedMoves{0};
+  double translationsAttempted{0};
+  double translationsAccepted{0};
+  double volumeAttempted{0};
+  double volumeAccepted{0};
 
   std::vector<double3> positions;
 
@@ -50,10 +54,9 @@ struct MonteCarlo
   EnergyVirial totalEnergyVirial;
 
   EnergyVirial drift;
-  double pressure = 0.0;
   std::vector<double> pressures;
   std::vector<double> chemicalPotentials;
-  std::vector<double> heatCapacities;
+  std::vector<double> energies;
 
   Logger logger;
   size_t frameNumber = 1;
@@ -64,20 +67,27 @@ struct MonteCarlo
    * Initializes the Monte Carlo simulation with the specified parameters.
    *
    * \param numberOfParticles Number of particles in the system.
+   * \param numberOfInitCycles Number of initialization cycles.
+   * \param numberOfProdCycles Number of production cycles.
    * \param temperature Temperature of the system.
    * \param boxSize Size of the simulation box.
    * \param maxDisplacement Maximum displacement in a move.
-   * \param numberOfInitCycles Number of initialization cycles.
-   * \param numberOfProdCycles Number of production cycles.
+   * \param translationProbability
+   * \param pressure Pressure to couple to for NPT.
+   * \param volumeProbability Probability of performing a volume move between (0, 1)
+   * \param maxVolumeChange Maximum volume change of a volume move
+   * \param swapProbability
    * \param sampleFrequency Frequency of sampling the system.
    * \param sigma Lennard-Jones sigma parameter.
    * \param epsilon Lennard-Jones epsilon parameter.
    * \param logLevel Logging level.
    * \param seed Seed for random number generator.
    */
-  MonteCarlo(size_t numberOfParticles, double temperature, double boxSize, double maxDisplacement,
-             size_t numberOfInitCycles, size_t numberOfProdCycles, size_t sampleFrequency = 100, double sigma = 1.0,
-             double epsilon = 1.0, size_t logLevel = 0, size_t seed = 12);
+  MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles, double temperature,
+             double boxSize, double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
+             double volumeProbability = 0.0, double maxVolumeChange = 1.0, double swapProbability = 0.0,
+             size_t sampleFrequency = 100, double sigma = 1.0, double epsilon = 1.0, size_t logLevel = 0,
+             size_t seed = 12);
 
   /**
    * \brief Generates a uniform random number between 0 and 1.
@@ -90,10 +100,8 @@ struct MonteCarlo
    * \brief Performs a translation move on a particle.
    *
    * Attempts to move a particle to a new position and accepts or rejects based on energy change.
-   *
-   * \param particleIdx Index of the particle to move.
    */
-  void translationMove(size_t particleIdx);
+  void translationMove();
 
   /**
    * \brief Optimizes the maximum displacement based on acceptance rate.
@@ -101,6 +109,17 @@ struct MonteCarlo
    * Adjusts the maximum displacement to achieve an optimal acceptance rate.
    */
   void optimizeMaxDisplacement();
+
+  /**
+   * \brief Performs a volume move on the box.
+   *
+   * Attempts to change the boxSize and accepts or rejects based on energy change.
+   */
+  void volumeMove();
+
+  void randomSwap();
+
+  void optimizeVolumeChange();
 
   /**
    * \brief Computes the pressure of the system.
@@ -115,34 +134,6 @@ struct MonteCarlo
    * Estimates the chemical potential and records it.
    */
   void computeChemicalPotential();
-
-  /**
-   * \brief Computes the heat capacity of the system.
-   *
-   * Calculates the heat capacity (functionality to be implemented).
-   */
-  void computeHeatCapacity();
-
-  /**
-   * \brief Calculates the energy and virial for a particle.
-   *
-   * Computes the energy and virial contributions of a particle at a given position.
-   *
-   * \param position Position of the particle.
-   * \param particleIdx Index of the particle.
-   * \param startIndex Start loop over other particles from this index, allowing lower triangular computation
-   * \return EnergyVirial object containing energy and virial.
-   */
-  EnergyVirial particleEnergyVirial(double3 position, size_t particleIdx);
-
-  /**
-   * \brief Calculates the total energy and virial of the system.
-   *
-   * Computes the total energy and virial contributions of all particles.
-   *
-   * \return EnergyVirial object containing total energy and virial.
-   */
-  EnergyVirial systemEnergyVirial();
 
   /**
    * \brief Runs the Monte Carlo simulation.

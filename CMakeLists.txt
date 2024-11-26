@@ -19,6 +19,7 @@ pybind11_add_module(molsim
     ${CMAKE_CURRENT_SOURCE_DIR}/src/molecularDynamics/md.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/molecularDynamics/sample.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/monteCarlo/mc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/monteCarlo/moves.cpp
 )
 target_include_directories(molsim PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardDisks
@@ -28,3 +29,5 @@ target_include_directories(molsim PRIVATE
 )
 
 install(TARGETS molsim LIBRARY DESTINATION .)
+
+add_subdirectory(docs)

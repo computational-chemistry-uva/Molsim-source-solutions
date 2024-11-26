@@ -10,18 +10,24 @@
 
 #include "writePDB.h"
 
-MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxSize, double maxDisplacement,
-                       size_t numberOfInitCycles, size_t numberOfProdCycles, size_t sampleFrequency, double sigma,
-                       double epsilon, size_t logLevel, size_t seed)
+MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles,
+                       double temperature, double boxSize, double maxDisplacement, double translationProbability,
+                       double pressure, double volumeProbability, double maxVolumeChange, double swapProbability,
+                       size_t sampleFrequency, double sigma, double epsilon, size_t logLevel, size_t seed)
     : numberOfParticles(numberOfParticles),
+      numberOfInitCycles(numberOfInitCycles),
+      numberOfProdCycles(numberOfProdCycles),
       temperature(temperature),
       boxSize(boxSize),
       maxDisplacement(maxDisplacement),
+      translationProbability(translationProbability),
+      pressure(pressure),
+      volumeProbability(volumeProbability),
+      maxVolumeChange(maxVolumeChange),
+      swapProbability(swapProbability),
       sampleFrequency(sampleFrequency),
       sigma(sigma),
       epsilon(epsilon),
-      numberOfInitCycles(numberOfInitCycles),
-      numberOfProdCycles(numberOfProdCycles),
       positions(numberOfParticles),
       mt(seed),
       uniform_dist(0.0, 1.0),
@@ -29,8 +35,7 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
 
 {
   // Calculate cutoff radius, cutoff energy, and system properties
-  cutOff = 0.4999 * boxSize;
-  cutOffSquared = cutOff * cutOff;
+  cutOff = 3.0 * sigma;
 
   volume = boxSize * boxSize * boxSize;
   density = numberOfParticles / volume;
@@ -38,8 +43,8 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
 
   double sigmaOverCutoff = sigma / cutOff;
   double r3i = sigmaOverCutoff * sigmaOverCutoff * sigmaOverCutoff;
-  cutOffEnergy = epsilon * numberOfParticles * (8.0 / 3.0) * M_PI * density * ((1.0 / 3.0) * r3i * r3i * r3i - r3i);
-  cutOffVirial = epsilon * (16.0 / 3.0) * M_PI * density * density * ((2.0 / 3.0) * r3i * r3i * r3i - r3i);
+  cutOffPrefactor = EnergyVirial(epsilon * (8.0 / 3.0) * M_PI * ((1.0 / 3.0) * r3i * r3i * r3i - r3i),
+                                 epsilon * (16.0 / 3.0) * M_PI * ((2.0 / 3.0) * r3i * r3i * r3i - r3i));
 
   // Empty movie.pdb file
   std::ofstream file("movie.pdb");
@@ -50,7 +55,7 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
   logger.debug(repr());
 
   // Calculate number of grid points and grid spacing based on number of particles
-  size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 1.5));
+  size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 0.5));
   double gridSize = boxSize / (static_cast<double>(numGrids) + 2.0);
   logger.debug("numGrids " + std::to_string(numGrids) + " gridSize " + std::to_string(gridSize));
 
@@ -73,10 +78,14 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
     }
   }
 
+  double totalProbability = translationProbability + volumeProbability + swapProbability;
+  volumeProbability = volumeProbability / totalProbability;
+  swapProbability = volumeProbability + (swapProbability / totalProbability);
+
   writePDB("movie.pdb", positions, boxSize, frameNumber);
   ++frameNumber;
 
-  totalEnergyVirial = systemEnergyVirial();
+  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
   runningEnergyVirial = totalEnergyVirial;
 
   logger.info("(Init) completed. Total energy: " + std::to_string(totalEnergyVirial.energy) +
@@ -84,71 +93,12 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, double temperature, double boxS
   logger.info(repr());
 };
 
-void MonteCarlo::translationMove(size_t particleIdx)
-{
-  numberOfAttemptedMoves++;
-  // Generate random displacement
-  double3 displacement = maxDisplacement * (double3(uniform(), uniform(), uniform()) - 0.5);
-  double3 newPosition = positions[particleIdx] + displacement;
-
-  // Calculate old and new energy and virial
-  EnergyVirial oldEnergyVirial = particleEnergyVirial(positions[particleIdx], particleIdx);
-  EnergyVirial newEnergyVirial = particleEnergyVirial(newPosition, particleIdx);
-
-  // Accept or reject the move based on Metropolis criterion
-  if (uniform() < std::exp(-beta * (newEnergyVirial.energy - oldEnergyVirial.energy)))
-  {
-    numberOfAcceptedMoves++;
-    positions[particleIdx] = newPosition;
-    runningEnergyVirial += (newEnergyVirial - oldEnergyVirial);
-  }
-}
-
-EnergyVirial MonteCarlo::particleEnergyVirial(double3 position, size_t particleIdx)
-{
-  EnergyVirial particleEnergyVirial;
-  // Compute energy and virial contributions from interactions with other particles
-  for (size_t i = 0; i < numberOfParticles; i++)
-  {
-    if (i != particleIdx)
-    {
-      double3 dr = position - positions[i];
-      dr = wrap(dr, boxSize);
-      double r2 = double3::dot(dr, dr);
-      if (r2 < cutOffSquared)
-      {
-        double r2i = (sigma * sigma) / r2;
-        double r6i = r2i * r2i * r2i;
-
-        particleEnergyVirial.energy += 4.0 * epsilon * (r6i * r6i - r6i);
-        particleEnergyVirial.virial += 48.0 * epsilon * (r6i * r6i - 0.5 * r6i);
-      }
-    }
-  }
-  return particleEnergyVirial;
-}
-
-EnergyVirial MonteCarlo::systemEnergyVirial()
-{
-  EnergyVirial systemEnergyVirial;
-  // Sum energy and virial contributions from all particles
-  for (size_t i = 0; i < numberOfParticles; i++)
-  {
-    systemEnergyVirial += particleEnergyVirial(positions[i], i);
-  }
-  // Avoid double counting
-  systemEnergyVirial.energy /= 2.0;
-  systemEnergyVirial.virial /= 2.0;
-  systemEnergyVirial.energy += cutOffEnergy;
-  return systemEnergyVirial;
-}
-
 void MonteCarlo::computePressure()
 {
   // Compute pressure using virial theorem and record it
-  pressure = (density / beta) + (runningEnergyVirial.virial / (3.0 * volume));
-  pressure += cutOffVirial;
-  pressures.push_back(pressure);
+  double virialPressure = (density / beta) + (runningEnergyVirial.virial / (3.0 * volume));
+  virialPressure += (cutOffPrefactor.virial * density * density);
+  pressures.push_back(virialPressure);
 }
 
 void MonteCarlo::computeChemicalPotential()
@@ -159,56 +109,56 @@ void MonteCarlo::computeChemicalPotential()
   {
     double3 randomPosition = double3(uniform(), uniform(), uniform());
     randomPosition *= boxSize;
-    chemPotEV += particleEnergyVirial(randomPosition, -1);
+    chemPotEV += particleEnergyVirial(positions, randomPosition, -1, boxSize, cutOff, sigma, epsilon);
   }
   double chemicalPotential = std::exp(-beta * chemPotEV.energy);
   chemicalPotentials.push_back(chemicalPotential);
 }
 
-void MonteCarlo::computeHeatCapacity() {}
-
-void MonteCarlo::optimizeMaxDisplacement()
-{
-  // Adjust max displacement to maintain optimal acceptance ratio
-  double acceptance = numberOfAcceptedMoves / numberOfAttemptedMoves;
-  double scaling = std::clamp(2.0 * acceptance, 0.5, 1.5);
-  maxDisplacement = std::clamp(scaling * maxDisplacement, 0.0001, 0.25 * boxSize);
-}
-
 void MonteCarlo::run()
 {
   // Main simulation loop
-  size_t numberOfAttemptedMoves = 0;
-  size_t numberOfAcceptedMoves = 0;
   for (cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; ++cycle)
   {
     // Attempt translation moves
     for (size_t i = 0; i < numberOfParticles; ++i)
     {
-      size_t particleIdx = static_cast<size_t>(uniform() * numberOfParticles);
-      translationMove(particleIdx);
+      double rand = uniform();
+      if (rand < volumeProbability)
+      {
+        volumeMove();
+      }
+      else if (rand < swapProbability)
+      {
+        randomSwap();
+      }
+      else
+      {
+        translationMove();
+      }
     }
 
     // Every sampleFrequency cycles, compute and log properties
     if (cycle % sampleFrequency == 0)
     {
-      totalEnergyVirial = systemEnergyVirial();
+      totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
       logger.info(repr());
       writePDB("movie.pdb", positions, boxSize, frameNumber);
       frameNumber++;
 
       optimizeMaxDisplacement();
+      optimizeVolumeChange();
       // If in production phase, compute observables
       if (cycle > numberOfInitCycles)
       {
         computePressure();
         computeChemicalPotential();
-        // computeHeatCapacity()
+        energies.push_back(runningEnergyVirial.energy);
       }
     }
   }
 
-  totalEnergyVirial = systemEnergyVirial();
+  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
   logger.info(repr());
   writePDB("movie.pdb", positions, boxSize, frameNumber);
 }
@@ -220,29 +170,41 @@ std::string MonteCarlo::repr()
 
   double averageChemicalPotential = average(chemicalPotentials);
   double realChemPot =
-      chemicalPotentials.size() ? -temperature * (std::log(averageChemicalPotential / density) + cutOffEnergy) : 0.0;
+      chemicalPotentials.size()
+          ? -temperature * (std::log(averageChemicalPotential / density) + (cutOffPrefactor.energy * density))
+          : 0.0;
 
   s += "Monte Carlo program\n";
   s += "----------------------------\n";
-  s += "Number of particles  : " + std::to_string(numberOfParticles) + "\n";
-  s += "Temperature          : " + std::to_string(temperature) + "\n";
-  s += "Box length           : " + std::to_string(boxSize) + "\n";
-  s += "Density              : " + std::to_string(density) + "\n";
-  s += "CutOff radius        : " + std::to_string(cutOff) + "\n";
-  s += "CutOff energy        : " + std::to_string(cutOffEnergy) + "\n";
-  s += "Steps run            : " + std::to_string(cycle) + "\n";
-  s += "Max displacement     : " + std::to_string(maxDisplacement) + "\n";
-  s += "Acceptance fraction  : " + std::to_string(numberOfAcceptedMoves / numberOfAttemptedMoves) + "\n";
-  s += "Running energy       : " + std::to_string(runningEnergyVirial.energy) + "\n";
-  s += "Total energy         : " + std::to_string(totalEnergyVirial.energy) + "\n";
+  s += std::format("Number of particles  : {}\n", numberOfParticles);
+  s += std::format("Temperature          : {:6.3f}\n", temperature);
+  if (volumeProbability != 0.0)
+  {
+    s += std::format("Pressure             : {:6.3f}\n", pressure);
+  }
+  s += std::format("Box length           : {:6.3f}\n", boxSize);
+  s += std::format("Volume               : {:6.3f}\n", volume);
+  s += std::format("Density              : {:6.3f}\n", density);
+  s += std::format("CutOff radius        : {:6.3f}\n", cutOff);
+  s += std::format("CutOff energy        : {:6.3f}\n", cutOffPrefactor.energy * density);
+  s += std::format("Steps run            : {}\n", cycle);
+  s += std::format("Max displacement     : {:6.3f}\n", maxDisplacement);
+  s += std::format("Translation acc.     : {:6.3f}\n", translationsAccepted / translationsAttempted);
+  if (volumeProbability != 0.0)
+  {
+    s += std::format("Max volume change    : {:6.3f}\n", maxVolumeChange);
+    s += std::format("Volume acc.          : {:6.3f}\n", volumeAccepted / volumeAttempted);
+  }
+  s += std::format("Running energy       : {:6.3f}\n", runningEnergyVirial.energy);
+  s += std::format("Total energy         : {:6.3f}\n", totalEnergyVirial.energy);
   s += std::format("Drift energy         : {:6.3e}\n", drift.energy);
-  s += "Running virial       : " + std::to_string(runningEnergyVirial.virial) + "\n";
-  s += "Total virial         : " + std::to_string(totalEnergyVirial.virial) + "\n";
-  s += "Drift virial         : " + std::to_string(drift.virial) + "\n";
-  s += "Current Pressure     : " + std::to_string(pressure) + "\n";
-  s += "Average pressure     : " + std::to_string(average(pressures)) + "\n";
-  s += "Average chem. pot.   : " + std::to_string(realChemPot) + "\n";
-  s += "Average Heat Cap.    : " + std::to_string(average(heatCapacities)) + "\n";
+  s += std::format("Running virial       : {:6.3f}\n", runningEnergyVirial.virial);
+  s += std::format("Total virial         : {:6.3f}\n", totalEnergyVirial.virial);
+  s += std::format("Drift virial         : {:6.3e}\n", drift.virial);
+  s += std::format("Average pressure     : {:6.3f}\n", average(pressures));
+  s += std::format("Average chem. pot.   : {:6.3f}\n", realChemPot);
+  s += std::format("Average Heat Cap.    : {:6.3f}\n",
+                   variance(energies) / (temperature * temperature * numberOfParticles));
   s += "\n";
   return s;
 }
