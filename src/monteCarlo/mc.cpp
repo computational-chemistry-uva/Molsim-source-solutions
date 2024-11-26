@@ -11,18 +11,20 @@
 #include "writePDB.h"
 
 MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles,
-                       double temperature, double boxSize, double maxDisplacement, double pressure,
-                       double volumeProbability, double maxVolumeChange, size_t sampleFrequency, double sigma,
-                       double epsilon, size_t logLevel, size_t seed)
+                       double temperature, double boxSize, double maxDisplacement, double translationProbability,
+                       double pressure, double volumeProbability, double maxVolumeChange, double swapProbability,
+                       size_t sampleFrequency, double sigma, double epsilon, size_t logLevel, size_t seed)
     : numberOfParticles(numberOfParticles),
       numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
       temperature(temperature),
       boxSize(boxSize),
       maxDisplacement(maxDisplacement),
+      translationProbability(translationProbability),
       pressure(pressure),
       volumeProbability(volumeProbability),
       maxVolumeChange(maxVolumeChange),
+      swapProbability(swapProbability),
       sampleFrequency(sampleFrequency),
       sigma(sigma),
       epsilon(epsilon),
@@ -41,9 +43,8 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size
 
   double sigmaOverCutoff = sigma / cutOff;
   double r3i = sigmaOverCutoff * sigmaOverCutoff * sigmaOverCutoff;
-  cutOffPrefactor =
-      EnergyVirial(epsilon * numberOfParticles * (8.0 / 3.0) * M_PI * ((1.0 / 3.0) * r3i * r3i * r3i - r3i),
-                   epsilon * (16.0 / 3.0) * M_PI * ((2.0 / 3.0) * r3i * r3i * r3i - r3i));
+  cutOffPrefactor = EnergyVirial(epsilon * (8.0 / 3.0) * M_PI * ((1.0 / 3.0) * r3i * r3i * r3i - r3i),
+                                 epsilon * (16.0 / 3.0) * M_PI * ((2.0 / 3.0) * r3i * r3i * r3i - r3i));
 
   // Empty movie.pdb file
   std::ofstream file("movie.pdb");
@@ -76,6 +77,10 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size
       }
     }
   }
+
+  double totalProbability = translationProbability + volumeProbability + swapProbability;
+  volumeProbability = volumeProbability / totalProbability;
+  swapProbability = volumeProbability + (swapProbability / totalProbability);
 
   writePDB("movie.pdb", positions, boxSize, frameNumber);
   ++frameNumber;
@@ -110,76 +115,6 @@ void MonteCarlo::computeChemicalPotential()
   chemicalPotentials.push_back(chemicalPotential);
 }
 
-void MonteCarlo::translationMove(size_t particleIdx)
-{
-  translationsAttempted++;
-  // Generate random displacement
-  double3 displacement = maxDisplacement * (double3(uniform(), uniform(), uniform()) - 0.5);
-  double3 trialPosition = positions[particleIdx] + displacement;
-
-  // Calculate old and new energy and virial
-  EnergyVirial oldEnergyVirial = particleEnergyVirial(positions, positions[particleIdx], particleIdx, boxSize, cutOff, sigma, epsilon);
-  EnergyVirial newEnergyVirial = particleEnergyVirial(positions, trialPosition, particleIdx, boxSize, cutOff, sigma, epsilon);
-
-  // Accept or reject the move based on Metropolis criterion
-  if (uniform() < std::exp(-beta * (newEnergyVirial.energy - oldEnergyVirial.energy)))
-  {
-    translationsAccepted++;
-    positions[particleIdx] = trialPosition;
-    runningEnergyVirial += (newEnergyVirial - oldEnergyVirial);
-  }
-}
-
-void MonteCarlo::optimizeMaxDisplacement()
-{
-  // Adjust max displacement to maintain optimal acceptance ratio
-  if (translationsAttempted)
-  {
-    double acceptance = translationsAccepted / translationsAttempted;
-    double scaling = std::clamp(2.0 * acceptance, 0.5, 1.5);
-    maxDisplacement = std::clamp(scaling * maxDisplacement, 0.0001, 0.25 * boxSize);
-  }
-}
-
-void MonteCarlo::volumeMove()
-{
-  volumeAttempted++;
-
-  double volumeChange = (uniform() - 0.5) * maxVolumeChange;
-  double newVolume = volume + volumeChange;
-  double newBoxSize = std::cbrt(newVolume);
-  double scale = newBoxSize / boxSize;
-
-  std::vector<double3> trialPositions(positions);
-  for (size_t i = 0; i < numberOfParticles; i++)
-  {
-    trialPositions[i] *= scale;
-  }
-  EnergyVirial newEnergyVirial =
-      systemEnergyVirial(trialPositions, newBoxSize, cutOff, sigma, epsilon, cutOffPrefactor);
-
-  if (uniform() < std::exp((numberOfParticles + 1.0) * std::log(newVolume / volume) -
-                           beta * (pressure * volumeChange + (newEnergyVirial.energy - runningEnergyVirial.energy))))
-  {
-    volumeAccepted++;
-    positions = trialPositions;
-    boxSize = newBoxSize;
-    volume = boxSize * boxSize * boxSize;
-    density = numberOfParticles / volume;
-    runningEnergyVirial = newEnergyVirial;
-  }
-}
-
-void MonteCarlo::optimizeVolumeChange()
-{
-  if (volumeAttempted)
-  {
-    double acceptance = volumeAccepted / volumeAttempted;
-    double scaling = std::clamp(2.0 * acceptance, 0.5, 1.5);
-    maxVolumeChange = std::clamp(scaling * maxVolumeChange, 0.0001, 10.0);
-  }
-}
-
 void MonteCarlo::run()
 {
   // Main simulation loop
@@ -188,14 +123,18 @@ void MonteCarlo::run()
     // Attempt translation moves
     for (size_t i = 0; i < numberOfParticles; ++i)
     {
-      if (uniform() < volumeProbability)
+      double rand = uniform();
+      if (rand < volumeProbability)
       {
         volumeMove();
       }
+      else if (rand < swapProbability)
+      {
+        randomSwap();
+      }
       else
       {
-        size_t particleIdx = static_cast<size_t>(uniform() * numberOfParticles);
-        translationMove(particleIdx);
+        translationMove();
       }
     }
 
@@ -208,7 +147,7 @@ void MonteCarlo::run()
       frameNumber++;
 
       optimizeMaxDisplacement();
-      // optimizeVolumeChange();
+      optimizeVolumeChange();
       // If in production phase, compute observables
       if (cycle > numberOfInitCycles)
       {
@@ -239,7 +178,10 @@ std::string MonteCarlo::repr()
   s += "----------------------------\n";
   s += std::format("Number of particles  : {}\n", numberOfParticles);
   s += std::format("Temperature          : {:6.3f}\n", temperature);
-  s += std::format("Pressure             : {:6.3f}\n", pressure);
+  if (volumeProbability != 0.0)
+  {
+    s += std::format("Pressure             : {:6.3f}\n", pressure);
+  }
   s += std::format("Box length           : {:6.3f}\n", boxSize);
   s += std::format("Volume               : {:6.3f}\n", volume);
   s += std::format("Density              : {:6.3f}\n", density);

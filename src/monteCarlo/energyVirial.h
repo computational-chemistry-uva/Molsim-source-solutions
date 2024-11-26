@@ -27,6 +27,13 @@ struct EnergyVirial
     this->virial += other.virial;
     return *this;
   };
+
+  EnergyVirial& operator-=(const EnergyVirial& other)
+  {
+    this->energy -= other.energy;
+    this->virial -= other.virial;
+    return *this;
+  };
 };
 static inline EnergyVirial operator-(const EnergyVirial& a, const EnergyVirial& b)
 {
@@ -87,8 +94,9 @@ static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, 
  *
  * \return EnergyVirial object containing total energy and virial.
  */
-static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, const double& boxSize, const double& cutOff,
-                                const double& sigma, const double& epsilon, EnergyVirial cutOffPrefactor)
+static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, const double& boxSize,
+                                       const double& cutOff, const double& sigma, const double& epsilon,
+                                       EnergyVirial cutOffPrefactor)
 {
   double volume = boxSize * boxSize * boxSize;
   double density = positions.size() / volume;
@@ -101,7 +109,7 @@ static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, co
   systemEnergyVirial.energy /= 2.0;
   systemEnergyVirial.virial /= 2.0;
 
-  systemEnergyVirial.energy += cutOffPrefactor.energy * density;
+  systemEnergyVirial.energy += cutOffPrefactor.energy * positions.size() * density;
   systemEnergyVirial.virial += cutOffPrefactor.virial * density * density;
   return systemEnergyVirial;
 }

@@ -72,7 +72,6 @@ static double average(std::vector<double> &data)
   return (data.size()) ? std::accumulate(data.begin(), data.end(), 0.0) / static_cast<double>(data.size()) : 0.0;
 }
 
-
 static double variance(std::vector<double> &data)
 {
   double size = static_cast<double>(data.size());

@@ -27,9 +27,11 @@ struct MonteCarlo
   size_t numberOfProdCycles;
   size_t sampleFrequency;
   double maxDisplacement;
+  double translationProbability;
   double pressure;
   double volumeProbability;
   double maxVolumeChange;
+  double swapProbability;
 
   double cutOff;
   EnergyVirial cutOffPrefactor;
@@ -70,9 +72,11 @@ struct MonteCarlo
    * \param temperature Temperature of the system.
    * \param boxSize Size of the simulation box.
    * \param maxDisplacement Maximum displacement in a move.
+   * \param translationProbability
    * \param pressure Pressure to couple to for NPT.
    * \param volumeProbability Probability of performing a volume move between (0, 1)
    * \param maxVolumeChange Maximum volume change of a volume move
+   * \param swapProbability
    * \param sampleFrequency Frequency of sampling the system.
    * \param sigma Lennard-Jones sigma parameter.
    * \param epsilon Lennard-Jones epsilon parameter.
@@ -80,9 +84,10 @@ struct MonteCarlo
    * \param seed Seed for random number generator.
    */
   MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles, double temperature,
-             double boxSize, double maxDisplacement, double pressure = 0.0, double volumeProbability = 0.0,
-             double maxVolumeChange = 1.0, size_t sampleFrequency = 100, double sigma = 1.0, double epsilon = 1.0,
-             size_t logLevel = 0, size_t seed = 12);
+             double boxSize, double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
+             double volumeProbability = 0.0, double maxVolumeChange = 1.0, double swapProbability = 0.0,
+             size_t sampleFrequency = 100, double sigma = 1.0, double epsilon = 1.0, size_t logLevel = 0,
+             size_t seed = 12);
 
   /**
    * \brief Generates a uniform random number between 0 and 1.
@@ -95,10 +100,8 @@ struct MonteCarlo
    * \brief Performs a translation move on a particle.
    *
    * Attempts to move a particle to a new position and accepts or rejects based on energy change.
-   *
-   * \param particleIdx Index of the particle to move.
    */
-  void translationMove(size_t particleIdx);
+  void translationMove();
 
   /**
    * \brief Optimizes the maximum displacement based on acceptance rate.
@@ -113,6 +116,8 @@ struct MonteCarlo
    * Attempts to change the boxSize and accepts or rejects based on energy change.
    */
   void volumeMove();
+
+  void randomSwap();
 
   void optimizeVolumeChange();
 
