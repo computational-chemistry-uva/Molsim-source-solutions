@@ -4,7 +4,7 @@
 | 1 (StatMech)    | Distributions         | python      |             |                      |              |                |               |
 |                 | Random walk (1D & 2D) | numba       | ✅           |                      |              |                |               |
 | 2 (Basic MC)    | Pi                    | python      | ✅           |                      | ✅            |                |               |
-|                 | Hard Disks            | numba & c++ | ✅           |                      |              |                |               |
+|                 | Hard Disks            | numba & c++ | ✅           |                      |           |                |               |
 |                 | LJ - MC               | c++         | ✅           |                      |              |                |               |
 | 3 (Basic MD)    | Ewald (aux?)          | numba       | ✅           |                      |              |                |               |
 |                 | Muller Brown          | numba       | ✅           |                      |              |                |               |
@@ -20,3 +20,8 @@ Other:
 - Remove std::format to allow using c++17
 - Install gromacs, plumed, raspa and micromamba
 
+
+
+Errors or unknowns:
+- LJ steps run 81604378640 for initial step
+- LJ movie.pdb loading issue using mdtraj (loading ok in vmd)
