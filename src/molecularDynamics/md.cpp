@@ -10,7 +10,7 @@
 /**
  * @brief Constructs a MolecularDynamics simulation with the given parameters.
  *
- * Initializes positions, velocities, and forces for the specified number of particles.
+ * Initializes positions, momenta, and forces for the specified number of particles.
  * Also sets up random number generators and samplers.
  *
  * @param numberOfParticles The number of particles in the simulation.
@@ -21,32 +21,35 @@
  * @param seed The seed for the random number generator.
  */
 MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperature, double dt, double boxSize,
-                                     size_t sampleFrequency, size_t logLevel, size_t seed)
+                                     size_t sampleFrequency, size_t logLevel, size_t seed, bool useNoseHoover)
     : numberOfParticles(numberOfParticles),
       temperature(temperature),
       dt(dt),
       boxSize(boxSize),
       sampleFrequency(sampleFrequency),
+      degreesOfFreedom(3 * numberOfParticles - 3),
+      useNoseHoover(useNoseHoover),
+      velocityScaling(temperature, degreesOfFreedom),
+      noseHoover(temperature, degreesOfFreedom, 500 * dt, dt, seed),
       positions(numberOfParticles),
-      oldPositions(numberOfParticles),
-      unwrappedPositions(numberOfParticles),
-      velocities(numberOfParticles),
+      momenta(numberOfParticles),
       forces(numberOfParticles),
       mt(seed),
       uniform_dist(0.0, 1.0),
       normal_dist(0.0, 1.0),
-      rdfSampler(numberOfParticles, boxSize),
+      rdfSampler(numberOfParticles, boxSize, cutOff),
       msdSampler(numberOfParticles, boxSize, dt * sampleFrequency),
       logger(logLevel)
 
 {
   // Calculate cutoff radius, cutoff energy, and system properties
-  cutOff = 0.4999 * boxSize;
+
+  // $U(r_c) = 4.0 * (r_c^{-12} - r_c^{-6})$
   double cutOffi6 = std::pow(cutOff, -6.0);
   cutOffEnergy = 4.0 * (cutOffi6 * cutOffi6 - cutOffi6);
+
   volume = boxSize * boxSize * boxSize;
   density = numberOfParticles / volume;
-  degreesOfFreedom = 3 * numberOfParticles - 3;
 
   // empty movie.pdb file
   std::ofstream file("movie.pdb");
@@ -55,67 +58,43 @@ MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperatur
   // Initialize MD simulation
   logger.info("Class MD created.");
   logger.debug(repr());
-  init();
-  logger.debug(repr());
-};
 
-/**
- * @brief Initializes the simulation by setting velocities and positions.
- *
- * Randomizes velocities, zeroes total momentum, scales velocities to the desired temperature,
- * initializes particle positions on a lattice, and performs gradient descent to minimize energy.
- */
-void MolecularDynamics::init()
-{
-  // Initialize velocities with random Gaussian distribution and compute total momentum
-  for (double3& velocity : velocities)
+  // Initialize momenta with random Gaussian distribution and compute total momentum
+  kineticEnergy = 0.0;
+  for (size_t i = 0; i < numberOfParticles; ++i)
   {
-    velocity = double3(normal(), normal(), normal());
-    totalMomentum += velocity;
+    momenta[i] = double3(normal(), normal(), normal()) * std::sqrt(temperature);
+    totalMomentum += momenta[i];
+    kineticEnergy += 0.5 * double3::dot(momenta[i], momenta[i]);
   }
   totalMomentum /= static_cast<double>(numberOfParticles);
-  logger.debug("(Init) initialized velocities.");
+  logger.debug("(Init) initialized momenta.");
 
-  // Zero total momentum and calculate initial kinetic energy
-  kineticEnergy = 0.0;
-  for (double3& velocity : velocities)
+  // Zero total momentum
+  for (size_t i = 0; i < numberOfParticles; ++i)
   {
-    velocity -= totalMomentum;
-    kineticEnergy += double3::dot(velocity, velocity);
+    momenta[i] -= totalMomentum;
   }
   observedTemperature = 2.0 * kineticEnergy / degreesOfFreedom;
   logger.debug("(Init) Zeroed momentum.");
-
-  // Scale velocities to match the desired temperature
-  double scale = std::sqrt(temperature * static_cast<double>(degreesOfFreedom) / kineticEnergy);
-  for (double3& velocity : velocities)
-  {
-    velocity *= scale;
-  }
-  logger.debug("(Init) scaled velocities to temperature " + std::to_string(temperature));
 
   latticeInitialization();
   writePDB("movie.pdb", positions, boxSize, frameNumber);
   ++frameNumber;
   gradientDescent();
 
-  // Recalculate old positions for Verlet integration
-  for (size_t i = 0; i < numberOfParticles; ++i)
-  {
-    oldPositions[i] = positions[i] - dt * velocities[i];
-  }
   logger.info("(Init) completed. Final energy: " + std::to_string(potentialEnergy));
-}
+  logger.debug(repr());
+};
 
-/**
- * @brief Initializes particle positions on a cubic lattice with slight random perturbations.
- *
- * Distributes particles evenly on a grid within the simulation box, adding small random displacements to avoid overlap.
- */
 void MolecularDynamics::latticeInitialization()
 {
   // Calculate number of grid points and grid spacing based on number of particles
+
+  // $n_grids = \lceil \cbrt{N} + 1.5 \rceil$
   size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 1.5));
+
+  // $l = L / (n + 2)$
   gridSize = boxSize / (static_cast<double>(numGrids) + 2.0);
   logger.info("numGrids " + std::to_string(numGrids) + " gridSize " + std::to_string(gridSize));
 
@@ -128,9 +107,8 @@ void MolecularDynamics::latticeInitialization()
       {
         if (counter < numberOfParticles)
         {
-          positions[counter] =
-              double3((i + 0.01 * (uniform() - 0.5)) * gridSize, (j + 0.01 * (uniform() - 0.5)) * gridSize,
-                      (k + 0.01 * (uniform() - 0.5)) * gridSize);
+          // $(x_i, y_i, z_i) = (l * i, l * j, l * z)$
+          positions[counter] = double3(i * gridSize, j * gridSize, k * gridSize);
           ++counter;
         }
       }
@@ -138,18 +116,14 @@ void MolecularDynamics::latticeInitialization()
   }
 }
 
-/**
- * @brief Minimizes potential energy using steepest descent method.
- *
- * Iteratively adjusts particle positions in the direction of the force to reduce potential energy.
- * Accepts or rejects steps based on energy reduction and adjusts step size accordingly.
- */
 void MolecularDynamics::gradientDescent()
 {
   // Initialize step size and variables for gradient descent
   double dx = 0.2 * gridSize;
   double previousEnergy = 0.0;
   std::vector<double3> oldForces(numberOfParticles);
+  std::vector<double3> oldPositions(numberOfParticles);
+
   for (size_t step = 0; step < 1000; ++step)
   {
     if (step == 0)
@@ -165,6 +139,7 @@ void MolecularDynamics::gradientDescent()
     std::copy(forces.begin(), forces.end(), oldForces.begin());
 
     // Calculate maximum force component to determine scaling factor
+    // $F_{max} = max(F_{0x}, F_{0y}, ... F_{Nz})$
     double maxForce;
     for (double3& force : forces)
     {
@@ -172,9 +147,11 @@ void MolecularDynamics::gradientDescent()
       maxForce = std::max(maxForce, abs(force.y));
       maxForce = std::max(maxForce, abs(force.z));
     }
+    // $s = dx / F_{max}$
     double scaleGradient = dx / maxForce;
 
     // Update positions in the direction of forces (gradient descent step)
+    // q_{i+1} = q_i + s * F_i$
     for (size_t i = 0; i < numberOfParticles; ++i)
     {
       positions[i] += scaleGradient * forces[i];
@@ -204,12 +181,6 @@ void MolecularDynamics::gradientDescent()
   logger.debug(repr());
 }
 
-/**
- * @brief Calculates forces between particles and updates potential energy and pressure.
- *
- * Implements the Lennard-Jones potential with a cutoff radius.
- * Uses pairwise interactions and accumulates forces, potential energy, and pressure.
- */
 void MolecularDynamics::calculateForce()
 {
   // Initialize forces to zero and reset potential energy and pressure
@@ -232,7 +203,7 @@ void MolecularDynamics::calculateForce()
       double3 dr = positions[i] - positions[j];
       dr = wrap(dr, boxSize);
 
-      // Get squared distance
+      // Get squared distance $r^2 = (x_i - x_j)^2 + (y_i - y_j)^2 + (z_i - z_j)^2$
       double r2 = double3::dot(dr, dr);
 
       // If within cutoff radius, compute Lennard-Jones potential and force
@@ -242,7 +213,10 @@ void MolecularDynamics::calculateForce()
         double r6i = r2i * r2i * r2i;
 
         // Update potential energy and pressure
+        // $U(r) = 4 (r^{-12} - r^{-6}) - U(r_{c})$
         potentialEnergy += 4.0 * r6i * (r6i - 1.0) - cutOffEnergy;
+
+        // $F(r) \dot r = -r \frac{\partial U}{\partial r} = 48.0 * (r^{-12} - \frac{1}{2} r^{-6})$
         double virial = 48.0 * r6i * (r6i - 0.5);
         pressure += virial;
 
@@ -257,63 +231,60 @@ void MolecularDynamics::calculateForce()
   pressure /= 3.0 * volume;
 }
 
-/**
- * @brief Integrates particle positions and velocities using the Verlet algorithm.
- *
- * Updates positions and velocities, applies velocity scaling during equilibration,
- * and recalculates kinetic energy and total momentum.
- */
+void MolecularDynamics::thermostat()
+{
+  if (useNoseHoover)
+  {
+    noseHoover.scale(momenta, kineticEnergy);
+  }
+  else
+  {
+    // only use hard velocity scaling in equilibration when not using Nose Hoover
+    if (equilibration)
+    {
+      velocityScaling.scale(momenta, kineticEnergy);
+    }
+  }
+}
+
 void MolecularDynamics::integrate()
 {
   double dt2 = dt * dt;
 
-  // Compute new positions and velocities using Verlet integration
-  kineticEnergy = 0.0;
-  std::vector<double3> newPositions(numberOfParticles);
+  // Update momenta half step
+  // $p(t + 0.5 \Delta t) = p(t) + 0.5 * F(t) * \Delta t$
   for (size_t i = 0; i < numberOfParticles; ++i)
   {
-    newPositions[i] = 2.0 * positions[i] - oldPositions[i] + forces[i] * dt2;
-    double3 dr = wrap(newPositions[i] - oldPositions[i], boxSize);
-    velocities[i] = dr / (2.0 * dt);
-    kineticEnergy += 0.5 * double3::dot(velocities[i], velocities[i]);
-  }
-
-  // Apply velocity scaling if in equilibration phase
-  double velocityScaling = equilibration ? std::sqrt(temperature * degreesOfFreedom / (2.0 * kineticEnergy)) : 1.0;
-
-  kineticEnergy = 0.0;
-  totalMomentum = double3();
-
-  // Recalculate kinetic energy and total momentum after scaling
-  for (size_t i = 0; i < numberOfParticles; ++i)
-  {
-    velocities[i] *= velocityScaling;
-    newPositions[i] = oldPositions[i] + 2.0 * velocities[i] * dt;
-    kineticEnergy += 0.5 * double3::dot(velocities[i], velocities[i]);
-
-    totalMomentum += velocities[i];
-
-    unwrappedPositions[i] = newPositions[i];
-    newPositions[i] = wrapFloor(newPositions[i], boxSize);
-    positions[i] = wrapFloor(positions[i], boxSize);
+    momenta[i] += 0.5 * forces[i] * dt;
   }
 
   // Update positions
-  std::copy(positions.begin(), positions.end(), oldPositions.begin());
-  std::copy(newPositions.begin(), newPositions.end(), positions.begin());
+  // $q(t + \Delta t) = q(t) + p(t) * \Delta t + 0.5 * F(t) * (\Delta t)^2$
+  for (size_t i = 0; i < numberOfParticles; ++i)
+  {
+    positions[i] += momenta[i] * dt;
+  }
 
-  pressure += 2.0 * kineticEnergy * numberOfParticles / (volume * 3.0 * numberOfParticles);
+  calculateForce();
+
+  // Update momenta half step and compute kinetic energy
+  kineticEnergy = 0.0;
+  totalMomentum = double3();
+
+  // $p(t + 0.5 \Delta t) = p(t) + 0.5 * F(t) * \Delta t$
+  for (size_t i = 0; i < numberOfParticles; ++i)
+  {
+    momenta[i] += 0.5 * forces[i] * dt;
+    kineticEnergy += 0.5 * double3::dot(momenta[i], momenta[i]);
+    totalMomentum += momenta[i];
+  }
+
+  thermostat();
+
+  // kinetic part of the pressure (virial part computed in calculateForce)
+  pressure += 2.0 * kineticEnergy / (volume * 3.0);
 }
 
-/**
- * @brief Runs the molecular dynamics simulation for a specified number of steps.
- *
- * Performs force calculations and integrations in each step, handles equilibration,
- * logs information, and samples properties.
- *
- * @param numberOfSteps The number of integration steps to perform.
- * @param equilibrate Whether the simulation is in the equilibration phase.
- */
 void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool outputPDB)
 {
   if (!equilibrate && equilibration)
@@ -328,23 +299,18 @@ void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool output
   // Main simulation loop
   for (size_t step = 0; step < numberOfSteps; ++step)
   {
-    // Update forces and integrate positions and velocities
-    calculateForce();
+    // Update forces and integrate positions and momenta
     integrate();
-    ++totalSteps;
 
     totalEnergy = kineticEnergy + potentialEnergy;
+    if (useNoseHoover)
+    {
+      totalEnergy += noseHoover.getEnergy();
+    }
+
     if (step == 1) logger.info(repr());
 
     observedTemperature = 2.0 * kineticEnergy / degreesOfFreedom;
-
-    // Start modification
-    // Update drift energy when not in equilibration
-    if (!equilibration)
-    {
-      driftEnergy += std::abs((totalEnergy - baselineEnergy) / (baselineEnergy * numberOfSteps));
-    }
-    // End modification
 
     // Log and sample data every 100 steps
     if (step % sampleFrequency == 0)
@@ -356,9 +322,10 @@ void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool output
         ++frameNumber;
         thermoSampler.sample(observedTemperature, pressure, potentialEnergy, kineticEnergy, totalEnergy);
         rdfSampler.sample(positions);
-        msdSampler.sample(unwrappedPositions, velocities);
+        msdSampler.sample(positions, momenta);
       }
     }
+    ++totalSteps;
   }
 
   if (!equilibrate)
@@ -367,13 +334,6 @@ void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool output
   }
 }
 
-/**
- * @brief Returns a string representation of the current state of the simulation.
- *
- * Provides detailed information about simulation parameters and current measurements.
- *
- * @return A formatted string containing simulation data.
- */
 std::string MolecularDynamics::repr()
 {
   std::string s;
@@ -392,9 +352,15 @@ std::string MolecularDynamics::repr()
   s += "Pressure             : " + std::to_string(pressure) + "\n";
   s += "Potential energy     : " + std::to_string(potentialEnergy) + "\n";
   s += "Kinetic energy       : " + std::to_string(kineticEnergy) + "\n";
-  s += "Total energy         : " + std::to_string(totalEnergy) + "\n";
-  s += "Drift energy         : " +
-       std::to_string(driftEnergy / std::max(1.0, static_cast<double>(rdfSampler.numberOfSamples))) + "\n";
+  s += "Conserved energy     : " + std::to_string(totalEnergy) + "\n";
+  if (useNoseHoover)
+  {
+    s += "Thermostat energy    : " + std::to_string(noseHoover.getEnergy()) + "\n";
+  }
+  if (!equilibration)
+  {
+    s += "Drift energy         : " + std::to_string(std::abs((totalEnergy - baselineEnergy) / baselineEnergy)) + "\n";
+  }
   s += "\n";
   return s;
 }

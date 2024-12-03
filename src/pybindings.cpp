@@ -30,9 +30,10 @@ PYBIND11_MODULE(molsim, m)
       .def_readonly("pressures", &MonteCarlo::pressures);
 
   pybind11::class_<MolecularDynamics>(m, "MolecularDynamics")
-      .def(pybind11::init<size_t, double, double, double, size_t, size_t, size_t>(), pybind11::arg("numberOfParticles"),
-           pybind11::arg("temperature"), pybind11::arg("dt"), pybind11::arg("boxSize"),
-           pybind11::arg("sampleFrequency") = 100, pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
+      .def(pybind11::init<size_t, double, double, double, size_t, size_t, size_t, bool>(),
+           pybind11::arg("numberOfParticles"), pybind11::arg("temperature"), pybind11::arg("dt"),
+           pybind11::arg("boxSize"), pybind11::arg("sampleFrequency") = 100, pybind11::arg("logLevel") = 0,
+           pybind11::arg("seed") = 12, pybind11::arg("useNoseHoover") = false)
       .def_readonly("rdfSampler", &MolecularDynamics::rdfSampler)
       .def_readonly("msdSampler", &MolecularDynamics::msdSampler)
       .def("__repr__", &MolecularDynamics::repr)

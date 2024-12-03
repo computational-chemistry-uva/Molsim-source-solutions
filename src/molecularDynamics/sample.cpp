@@ -18,13 +18,13 @@
  * @param totalEnergy The instantaneous total energy of the system.
  */
 void SampleThermodynamicalAverages::sample(double temperature, double pressure, double potentialEnergy,
-                                           double kineticEnergy, double totalEnergy)
+                                           double kineticEnergy, double conservedEnergy)
 {
   vTemperature.push_back(temperature);
   vPressure.push_back(pressure);
   vPotentialEnergy.push_back(potentialEnergy);
   vKineticEnergy.push_back(kineticEnergy);
-  vTotalEnergy.push_back(totalEnergy);
+  vConservedEnergy.push_back(conservedEnergy);
 }
 
 /**
@@ -41,7 +41,7 @@ std::string SampleThermodynamicalAverages::repr()
   std::pair<double, double> avePressure = blockAverage(vPressure);
   std::pair<double, double> avePotentialEnergy = blockAverage(vPotentialEnergy);
   std::pair<double, double> aveKineticEnergy = blockAverage(vKineticEnergy);
-  std::pair<double, double> aveTotalEnergy = blockAverage(vTotalEnergy);
+  std::pair<double, double> aveConservedEnergy = blockAverage(vConservedEnergy);
 
   s += "Thermodynamical averages\n";
   s += "----------------------------\n";
@@ -53,8 +53,8 @@ std::string SampleThermodynamicalAverages::repr()
        std::to_string(avePotentialEnergy.second) + "\n";
   s += "Kinetic energy       : " + std::to_string(aveKineticEnergy.first) + " ± " +
        std::to_string(aveKineticEnergy.second) + "\n";
-  s += "Total energy         : " + std::to_string(aveTotalEnergy.first) + " ± " +
-       std::to_string(aveTotalEnergy.second) + "\n";
+  s += "Conserved energy     : " + std::to_string(aveConservedEnergy.first) + " ± " +
+       std::to_string(aveConservedEnergy.second) + "\n";
 
   return s;
 }
@@ -67,10 +67,9 @@ std::string SampleThermodynamicalAverages::repr()
  * @param numberOfParticles The number of particles in the system.
  * @param boxSize The length of the simulation box (assuming cubic box).
  */
-SampleRDF::SampleRDF(size_t numberOfParticles, double boxSize)
-    : histogram(numberOfBins), numberOfParticles(numberOfParticles), boxSize(boxSize), r(numberOfBins)
+SampleRDF::SampleRDF(size_t numberOfParticles, double boxSize, double cutOff)
+    : histogram(numberOfBins), numberOfParticles(numberOfParticles), boxSize(boxSize), r(numberOfBins), cutOff(cutOff)
 {
-  cutOff = 0.5 * boxSize;
   delta = cutOff / static_cast<double>(numberOfBins);
   for (size_t i = 0; i < numberOfBins; ++i)
   {
@@ -95,7 +94,7 @@ void SampleRDF::sample(std::vector<double3>& positions)
     for (size_t j = i + 1; j < numberOfParticles; ++j)
     {
       double3 dr = positions[i] - positions[j];
-      wrap(dr, boxSize);
+      dr = wrap(dr, boxSize);
       double dist = std::sqrt(double3::dot(dr, dr));
       if (dist < cutOff)
       {

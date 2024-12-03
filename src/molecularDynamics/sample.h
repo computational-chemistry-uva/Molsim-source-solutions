@@ -15,17 +15,18 @@ struct SampleThermodynamicalAverages
   std::vector<double> vPressure;
   std::vector<double> vPotentialEnergy;
   std::vector<double> vKineticEnergy;
-  std::vector<double> vTotalEnergy;
+  std::vector<double> vConservedEnergy;
 
   SampleThermodynamicalAverages() {};
-  void sample(double temperature, double pressure, double potentialEnergy, double kineticEnergy, double totalEnergy);
+  void sample(double temperature, double pressure, double potentialEnergy, double kineticEnergy,
+              double conservedEnergy);
   std::string repr();
 };
 
 struct SampleRDF
 {
   size_t numberOfSamples = 0;
-  size_t numberOfBins = 500;
+  size_t numberOfBins = 100;
   std::vector<double> histogram;
 
   size_t numberOfParticles;
@@ -36,7 +37,7 @@ struct SampleRDF
 
   std::vector<double> r;
 
-  SampleRDF(size_t numberOfParticles, double boxSize);
+  SampleRDF(size_t numberOfParticles, double boxSize, double cutOff);
 
   void sample(std::vector<double3>& positions);
   pybind11::array_t<double> getResults();

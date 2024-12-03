@@ -18,6 +18,7 @@ pybind11_add_module(molsim
     ${CMAKE_CURRENT_SOURCE_DIR}/src/hardDisks/hardDisks.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/molecularDynamics/md.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/molecularDynamics/sample.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/molecularDynamics/thermostats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/monteCarlo/mc.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/monteCarlo/moves.cpp
 )
