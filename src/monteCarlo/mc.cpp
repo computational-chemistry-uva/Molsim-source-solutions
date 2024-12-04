@@ -12,8 +12,8 @@
 
 MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles,
                        double temperature, double boxSize, double maxDisplacement, double translationProbability,
-                       double pressure, double volumeProbability, double maxVolumeChange, double swapProbability,
-                       size_t sampleFrequency, double sigma, double epsilon, size_t logLevel, size_t seed)
+                       double pressure, double volumeProbability, double maxVolumeChange, size_t sampleFrequency,
+                       double sigma, double epsilon, size_t logLevel, size_t seed)
     : numberOfParticles(numberOfParticles),
       numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
@@ -24,7 +24,6 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size
       pressure(pressure),
       volumeProbability(volumeProbability),
       maxVolumeChange(maxVolumeChange),
-      swapProbability(swapProbability),
       sampleFrequency(sampleFrequency),
       sigma(sigma),
       epsilon(epsilon),
@@ -78,9 +77,8 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size
     }
   }
 
-  double totalProbability = translationProbability + volumeProbability + swapProbability;
+  double totalProbability = translationProbability + volumeProbability;
   volumeProbability = volumeProbability / totalProbability;
-  swapProbability = volumeProbability + (swapProbability / totalProbability);
 
   writePDB("movie.pdb", positions, boxSize, frameNumber);
   ++frameNumber;
@@ -127,10 +125,6 @@ void MonteCarlo::run()
       if (rand < volumeProbability)
       {
         volumeMove();
-      }
-      else if (rand < swapProbability)
-      {
-        randomSwap();
       }
       else
       {

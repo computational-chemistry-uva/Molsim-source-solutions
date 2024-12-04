@@ -17,14 +17,14 @@ PYBIND11_MODULE(molsim, m)
       .def_readonly("acceptanceRatio", &HardDisks::acceptanceRatio);
 
   pybind11::class_<MonteCarlo>(m, "MonteCarlo")
-      .def(pybind11::init<size_t, size_t, size_t, double, double, double, double, double, double, double, double,
-                          size_t, double, double, size_t, size_t>(),
+      .def(pybind11::init<size_t, size_t, size_t, double, double, double, double, double, double, double, size_t,
+                          double, double, size_t, size_t>(),
            pybind11::arg("numberOfParticles"), pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"),
            pybind11::arg("temperature"), pybind11::arg("boxSize"), pybind11::arg("maxDisplacement"),
            pybind11::arg("translationProbability") = 0.0, pybind11::arg("pressure") = 0.0,
            pybind11::arg("volumeProbability") = 0.0, pybind11::arg("maxVolumeChange") = 1.0,
-           pybind11::arg("swapProbability") = 0.0, pybind11::arg("sampleFrequency") = 100, pybind11::arg("sigma") = 1.0,
-           pybind11::arg("epsilon") = 1.0, pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
+           pybind11::arg("sampleFrequency") = 100, pybind11::arg("sigma") = 1.0, pybind11::arg("epsilon") = 1.0,
+           pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
       .def("__repr__", &MonteCarlo::repr)
       .def("run", &MonteCarlo::run)
       .def_readonly("pressures", &MonteCarlo::pressures);

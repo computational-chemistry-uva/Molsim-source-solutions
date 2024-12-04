@@ -31,7 +31,6 @@ struct MonteCarlo
   double pressure;
   double volumeProbability;
   double maxVolumeChange;
-  double swapProbability;
 
   double cutOff;
   EnergyVirial cutOffPrefactor;
@@ -85,9 +84,8 @@ struct MonteCarlo
    */
   MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles, double temperature,
              double boxSize, double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
-             double volumeProbability = 0.0, double maxVolumeChange = 1.0, double swapProbability = 0.0,
-             size_t sampleFrequency = 100, double sigma = 1.0, double epsilon = 1.0, size_t logLevel = 0,
-             size_t seed = 12);
+             double volumeProbability = 0.0, double maxVolumeChange = 1.0, size_t sampleFrequency = 100,
+             double sigma = 1.0, double epsilon = 1.0, size_t logLevel = 0, size_t seed = 12);
 
   /**
    * \brief Generates a uniform random number between 0 and 1.
@@ -116,8 +114,6 @@ struct MonteCarlo
    * Attempts to change the boxSize and accepts or rejects based on energy change.
    */
   void volumeMove();
-
-  void randomSwap();
 
   void optimizeVolumeChange();
 

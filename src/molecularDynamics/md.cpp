@@ -231,6 +231,52 @@ void MolecularDynamics::calculateForce()
   pressure /= 3.0 * volume;
 }
 
+// void MolecularDynamics::calculateForce()
+// {
+//   // Initialize forces to zero and reset potential energy and pressure
+//   double cutOffSquared = cutOff * cutOff;
+
+//   for (size_t i = 0; i < numberOfParticles; ++i)
+//   {
+//     forces[i] = double3();
+//   }
+
+//   potentialEnergy = 0.0;
+//   pressure = 0.0;
+
+//   // Loop over all unique particle pairs to compute interactions
+//   for (size_t i = 0; i < positions.size(); ++i)
+//   {
+//     for (size_t j = 0; j < positions.size(); ++j)
+//     {
+//       if (i != j)
+//       {
+//         // Calculate minimum image distance between particles
+//         double3 dr = positions[i] - positions[j];
+//         dr = wrap(dr, boxSize);
+
+//         // Get squared distance $r^2 = (x_i - x_j)^2 + (y_i - y_j)^2 + (z_i - z_j)^2$
+//         double r2 = double3::dot(dr, dr);
+//         double r = std::sqrt(r2);
+
+//         // Update potential energy and pressure
+//         // $U(r) = 4 (r^{-12} - r^{-6}) - U(r_{c})$
+//         potentialEnergy += 0.5 * 4.0 * (std::pow(r, -12) - std::pow(r, -6)) - cutOffEnergy;
+
+//         // $F(r) \dot r = -r \frac{\partial U}{\partial r} = 48.0 * (r^{-12} - \frac{1}{2} r^{-6})$
+//         double virial = 0.5 * 48.0 * (std::pow(r, -12) - 0.5 * std::pow(r, -6));
+//         pressure += virial;
+
+//         // Add forces to particles i and j
+//         forces[i] += virial * dr / r2;
+//       }
+//     }
+//   }
+
+//   // Normalize pressure by dividing by 3 times the volume
+//   pressure /= 3.0 * volume;
+// }
+
 void MolecularDynamics::thermostat()
 {
   if (useNoseHoover)
