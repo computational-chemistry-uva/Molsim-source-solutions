@@ -7,22 +7,6 @@
 
 #include "double3.h"
 
-struct SampleThermodynamicalAverages
-{
-  size_t numberOfSamples = 0;
-
-  std::vector<double> vTemperature;
-  std::vector<double> vPressure;
-  std::vector<double> vPotentialEnergy;
-  std::vector<double> vKineticEnergy;
-  std::vector<double> vConservedEnergy;
-
-  SampleThermodynamicalAverages() {};
-  void sample(double temperature, double pressure, double potentialEnergy, double kineticEnergy,
-              double conservedEnergy);
-  std::string repr();
-};
-
 struct SampleRDF
 {
   size_t numberOfSamples = 0;

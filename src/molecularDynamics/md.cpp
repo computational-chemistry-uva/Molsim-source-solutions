@@ -21,19 +21,30 @@
  * @param seed The seed for the random number generator.
  */
 MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperature, double dt, double boxSize,
+                                     size_t numberOfEquilibrationSteps, size_t numberOfProductionSteps, bool outputPDB,
                                      size_t sampleFrequency, size_t logLevel, size_t seed, bool useNoseHoover)
     : numberOfParticles(numberOfParticles),
       temperature(temperature),
       dt(dt),
       boxSize(boxSize),
+      numberOfEquilibrationSteps(numberOfEquilibrationSteps),
+      numberOfProductionSteps(numberOfProductionSteps),
       sampleFrequency(sampleFrequency),
       degreesOfFreedom(3 * numberOfParticles - 3),
       useNoseHoover(useNoseHoover),
       velocityScaling(temperature, degreesOfFreedom),
       noseHoover(temperature, degreesOfFreedom, 500 * dt, dt, seed),
+      outputPDB(outputPDB),
       positions(numberOfParticles),
       momenta(numberOfParticles),
       forces(numberOfParticles),
+      numberOfSamples(static_cast<size_t>(numberOfProductionSteps / sampleFrequency)),
+      time(numberOfSamples),
+      pressures(numberOfSamples),
+      kineticEnergies(numberOfSamples),
+      potentialEnergies(numberOfSamples),
+      conservedEnergies(numberOfSamples),
+      observedTemperatures(numberOfSamples),
       mt(seed),
       uniform_dist(0.0, 1.0),
       normal_dist(0.0, 1.0),
@@ -282,11 +293,12 @@ void MolecularDynamics::thermostat()
   if (useNoseHoover)
   {
     noseHoover.scale(momenta, kineticEnergy);
+    conservedEnergy += noseHoover.getEnergy();
   }
   else
   {
     // only use hard velocity scaling in equilibration when not using Nose Hoover
-    if (equilibration)
+    if (step <= numberOfEquilibrationSteps)
     {
       velocityScaling.scale(momenta, kineticEnergy);
     }
@@ -308,7 +320,7 @@ void MolecularDynamics::integrate()
   // $q(t + \Delta t) = q(t) + p(t) * \Delta t + 0.5 * F(t) * (\Delta t)^2$
   for (size_t i = 0; i < numberOfParticles; ++i)
   {
-    positions[i] += momenta[i] * dt + 0.5 * forces[i] * dt2;
+    positions[i] += momenta[i] * dt;
   }
 
   calculateForce();
@@ -324,37 +336,22 @@ void MolecularDynamics::integrate()
     kineticEnergy += 0.5 * double3::dot(momenta[i], momenta[i]);
     totalMomentum += momenta[i];
   }
-
+  conservedEnergy = kineticEnergy + potentialEnergy;
   thermostat();
 
   // kinetic part of the pressure (virial part computed in calculateForce)
   pressure += 2.0 * kineticEnergy / (volume * 3.0);
 }
 
-void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool outputPDB)
+void MolecularDynamics::run()
 {
-  if (!equilibrate && equilibration)
-  {
-    // Start modification
-    // set baseline energy for drift
-    baselineEnergy = totalEnergy;
-    // End modification
-  }
-
-  equilibration = equilibrate;
+  size_t sampleCounter = 0;
   // Main simulation loop
-  for (size_t step = 0; step < numberOfSteps; ++step)
+  for (step = 0; step < numberOfEquilibrationSteps + numberOfProductionSteps + 1; ++step)
   {
     // Update forces and integrate positions and momenta
     integrate();
-
-    totalEnergy = kineticEnergy + potentialEnergy;
-    if (useNoseHoover)
-    {
-      totalEnergy += noseHoover.getEnergy();
-    }
-
-    if (step == 1) logger.info(repr());
+    if (step == numberOfEquilibrationSteps) baselineEnergy = conservedEnergy;
 
     observedTemperature = 2.0 * kineticEnergy / degreesOfFreedom;
 
@@ -362,23 +359,55 @@ void MolecularDynamics::run(size_t& numberOfSteps, bool equilibrate, bool output
     if (step % sampleFrequency == 0)
     {
       logger.info(repr());
-      if (outputPDB) writePDB("movie.pdb", positions, boxSize, frameNumber);
-      if (!equilibration)
+      if (outputPDB) 
       {
+        writePDB("movie.pdb", positions, boxSize, frameNumber);
         ++frameNumber;
-        thermoSampler.sample(observedTemperature, pressure, potentialEnergy, kineticEnergy, totalEnergy);
+      }
+      if (step > numberOfEquilibrationSteps)
+      {
+        time[sampleCounter] = (step - numberOfEquilibrationSteps) * dt;
+        observedTemperatures[sampleCounter] = observedTemperature;
+        pressures[sampleCounter] = pressure;
+        potentialEnergies[sampleCounter] = potentialEnergy;
+        kineticEnergies[sampleCounter] = kineticEnergy;
+        conservedEnergies[sampleCounter] = conservedEnergy;
+        sampleCounter++;
+
         rdfSampler.sample(positions);
         msdSampler.sample(positions, momenta);
       }
     }
-    ++totalSteps;
   }
 
-  if (!equilibrate)
-  {
-    logger.info(thermoSampler.repr());
-  }
+  logThermodynamicalAverages();
 }
+
+void MolecularDynamics::logThermodynamicalAverages()
+{
+  std::string s;
+  std::pair<double, double> aveTemperature = blockAverage(observedTemperatures);
+  std::pair<double, double> avePressure = blockAverage(pressures);
+  std::pair<double, double> avePotentialEnergy = blockAverage(potentialEnergies);
+  std::pair<double, double> aveKineticEnergy = blockAverage(kineticEnergies);
+  std::pair<double, double> aveConservedEnergy = blockAverage(conservedEnergies);
+
+  s += "Thermodynamical averages\n";
+  s += "----------------------------\n";
+  s += "Temperature          : " + std::to_string(aveTemperature.first) + " ± " +
+       std::to_string(aveTemperature.second) + "\n";
+  s +=
+      "Pressure             : " + std::to_string(avePressure.first) + " ± " + std::to_string(avePressure.second) + "\n";
+  s += "Potential energy     : " + std::to_string(avePotentialEnergy.first) + " ± " +
+       std::to_string(avePotentialEnergy.second) + "\n";
+  s += "Kinetic energy       : " + std::to_string(aveKineticEnergy.first) + " ± " +
+       std::to_string(aveKineticEnergy.second) + "\n";
+  s += "Conserved energy     : " + std::to_string(aveConservedEnergy.first) + " ± " +
+       std::to_string(aveConservedEnergy.second) + "\n";
+
+  logger.info(s);
+}
+
 
 std::string MolecularDynamics::repr()
 {
@@ -392,20 +421,19 @@ std::string MolecularDynamics::repr()
   s += "Density              : " + std::to_string(density) + "\n";
   s += "CutOff radius        : " + std::to_string(cutOff) + "\n";
   s += "CutOff energy        : " + std::to_string(cutOffEnergy) + "\n";
-  s += "Steps run            : " + std::to_string(totalSteps) + "\n";
-  s += "Equilibration        : " + std::string(equilibration ? "true" : "false") + "\n";
+  s += "Steps run            : " + std::to_string(step) + "\n";
   s += "Observed temperature : " + std::to_string(observedTemperature) + "\n";
   s += "Pressure             : " + std::to_string(pressure) + "\n";
   s += "Potential energy     : " + std::to_string(potentialEnergy) + "\n";
   s += "Kinetic energy       : " + std::to_string(kineticEnergy) + "\n";
-  s += "Conserved energy     : " + std::to_string(totalEnergy) + "\n";
+  s += "Conserved energy     : " + std::to_string(conservedEnergy) + "\n";
   if (useNoseHoover)
   {
     s += "Thermostat energy    : " + std::to_string(noseHoover.getEnergy()) + "\n";
   }
-  if (!equilibration)
+  if (step > numberOfEquilibrationSteps)
   {
-    s += "Drift energy         : " + std::to_string(std::abs((totalEnergy - baselineEnergy) / baselineEnergy)) + "\n";
+    s += "Drift energy         : " + std::to_string(std::abs((conservedEnergy - baselineEnergy) / baselineEnergy)) + "\n";
   }
   s += "\n";
   return s;

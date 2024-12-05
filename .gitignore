@@ -3,6 +3,7 @@
 **/CmakeCache.txt
 **/CMakeFiles
 **/build/
+**/*.egg-info
 
 # Prerequisites
 *.d

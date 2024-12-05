@@ -17,9 +17,13 @@ struct MolecularDynamics
   double temperature;
   double dt;
   double boxSize;
+  size_t numberOfEquilibrationSteps;
+  size_t numberOfProductionSteps;
   size_t sampleFrequency;
-  size_t totalSteps = 0;
+  bool outputPDB;
+  bool useNoseHoover;
 
+  size_t step;
   double cutOff = 3.0;
   double cutOffEnergy;
   double volume;
@@ -27,9 +31,7 @@ struct MolecularDynamics
   size_t degreesOfFreedom;
   double3 totalMomentum;
   double gridSize;
-  bool equilibration = false;
 
-  bool useNoseHoover;
   VelocityScaling velocityScaling;
   NoseHooverNVT noseHoover;
 
@@ -43,16 +45,23 @@ struct MolecularDynamics
   std::normal_distribution<double> normal_dist;
 
   // observables
-  double pressure = 0.0;
-  double kineticEnergy = 0.0;
-  double potentialEnergy = 0.0;
-  double totalEnergy = 0.0;
-  double observedTemperature = 0.0;
+  size_t numberOfSamples;
+  double pressure;
+  double kineticEnergy;
+  double potentialEnergy;
+  double conservedEnergy;
+  double observedTemperature;
+
+  std::vector<double> time;
+  std::vector<double> pressures;
+  std::vector<double> kineticEnergies;
+  std::vector<double> potentialEnergies;
+  std::vector<double> conservedEnergies;
+  std::vector<double> observedTemperatures;
 
   double baselineEnergy = 0.0;
   double driftEnergy = 0.0;
 
-  SampleThermodynamicalAverages thermoSampler;
   SampleRDF rdfSampler;
   SampleMSD msdSampler;
 
@@ -61,6 +70,7 @@ struct MolecularDynamics
   size_t frameNumber = 1;
 
   MolecularDynamics(size_t numberOfParticles, double temperature, double dt, double boxSize,
+                    size_t numberOfEquilibrationSteps, size_t numberOfProductionSteps, bool outputPDB = true,
                     size_t sampleFrequency = 100, size_t logLevel = 0, size_t seed = 12, bool useNoseHoover = false);
 
   double uniform() { return uniform_dist(mt); }
@@ -109,7 +119,9 @@ struct MolecularDynamics
    * @param numberOfSteps The number of integration steps to perform.
    * @param equilibrate Whether the simulation is in the equilibration phase.
    */
-  void run(size_t& numberOfCycles, bool equilibrate, bool outputPDB = true);
+  void run();
+
+  void logThermodynamicalAverages();
 
   /**
    * @brief Returns a string representation of the current state of the simulation.

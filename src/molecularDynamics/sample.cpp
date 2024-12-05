@@ -9,55 +9,11 @@
 #include "utils.h"
 
 /**
- * @brief Samples thermodynamical quantities and stores them for averaging.
- *
- * @param temperature The instantaneous temperature of the system.
- * @param pressure The instantaneous pressure of the system.
- * @param potentialEnergy The instantaneous potential energy of the system.
- * @param kineticEnergy The instantaneous kinetic energy of the system.
- * @param totalEnergy The instantaneous total energy of the system.
+  -------------------------------------------------------------
+  -------------            RDF               ------------------
+  -------------------------------------------------------------
  */
-void SampleThermodynamicalAverages::sample(double temperature, double pressure, double potentialEnergy,
-                                           double kineticEnergy, double conservedEnergy)
-{
-  vTemperature.push_back(temperature);
-  vPressure.push_back(pressure);
-  vPotentialEnergy.push_back(potentialEnergy);
-  vKineticEnergy.push_back(kineticEnergy);
-  vConservedEnergy.push_back(conservedEnergy);
-}
 
-/**
- * @brief Returns a string representation of the thermodynamical averages with uncertainties.
- *
- * Calculates block averages of the stored thermodynamical quantities and formats them into a readable string.
- *
- * @return A formatted string containing the averages and uncertainties.
- */
-std::string SampleThermodynamicalAverages::repr()
-{
-  std::string s;
-  std::pair<double, double> aveTemperature = blockAverage(vTemperature);
-  std::pair<double, double> avePressure = blockAverage(vPressure);
-  std::pair<double, double> avePotentialEnergy = blockAverage(vPotentialEnergy);
-  std::pair<double, double> aveKineticEnergy = blockAverage(vKineticEnergy);
-  std::pair<double, double> aveConservedEnergy = blockAverage(vConservedEnergy);
-
-  s += "Thermodynamical averages\n";
-  s += "----------------------------\n";
-  s += "Temperature          : " + std::to_string(aveTemperature.first) + " ± " +
-       std::to_string(aveTemperature.second) + "\n";
-  s +=
-      "Pressure             : " + std::to_string(avePressure.first) + " ± " + std::to_string(avePressure.second) + "\n";
-  s += "Potential energy     : " + std::to_string(avePotentialEnergy.first) + " ± " +
-       std::to_string(avePotentialEnergy.second) + "\n";
-  s += "Kinetic energy       : " + std::to_string(aveKineticEnergy.first) + " ± " +
-       std::to_string(aveKineticEnergy.second) + "\n";
-  s += "Conserved energy     : " + std::to_string(aveConservedEnergy.first) + " ± " +
-       std::to_string(aveConservedEnergy.second) + "\n";
-
-  return s;
-}
 
 /**
  * @brief Constructs a SampleRDF object for computing the radial distribution function.
@@ -141,6 +97,12 @@ pybind11::array_t<double> SampleRDF::getResults()
 
   return result;
 }
+
+/**
+  -------------------------------------------------------------
+  -------------             MSD              ------------------
+  -------------------------------------------------------------
+ */
 
 /**
  * @brief Constructs a SampleMSD object for computing the mean square displacement (MSD) and velocity autocorrelation
