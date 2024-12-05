@@ -6,14 +6,15 @@
 | 2 (Basic MC)    | Pi                    | python      | ✅           |                      | ✅            |                |               |
 |                 | Hard Disks            | numba & c++ | ✅           |                      |           |                |               |
 |                 | LJ - MC               | c++         | ✅           |                      |              |                |               |
-| 3 (Basic MD)    | Ewald (aux?)          | numba       | ✅           |                      |              |                |               |
-|                 | Muller Brown          | numba       | ✅           |                      |              |                |               |
+| 3 (Basic MD)    | Muller Brown          | numba       | ✅           |                      |              |                |               |
 |                 | LJ - MD               | c++         | ✅           | ✅                    |              |                |               |
+|                 | LJ code optimization  | c++         | ✅           | ✅                    |              |                |               |
 | 4 (Advanced MC) | Parallel Tempering    | numba       | ✅           |                      | ✅            |                |               |
+|                 | NVT Coexistence       | c++         | ✅           |                      |              |                |               |
 |                 | NPT LJ                | c++         | ✅           |                      |              |                |               |
 | 5 (Advanced MD) | Umbrella sampling     | numba       |             |                      |              |                |               |
-|                 | LJ code optimization  | c++         | ✅           | ✅                    |              |                |               |
 |                 | Nosé-Hoover           | c++         |             |                      |              |                |               |
+|                 | Ewald (aux?)          | numba       | ✅           |                      |              |                |               |
 Other:
 - Manual how to use code
 - Presentation on 6th december

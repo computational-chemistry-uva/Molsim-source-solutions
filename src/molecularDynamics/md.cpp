@@ -308,7 +308,7 @@ void MolecularDynamics::integrate()
   // $q(t + \Delta t) = q(t) + p(t) * \Delta t + 0.5 * F(t) * (\Delta t)^2$
   for (size_t i = 0; i < numberOfParticles; ++i)
   {
-    positions[i] += momenta[i] * dt;
+    positions[i] += momenta[i] * dt + 0.5 * forces[i] * dt2;
   }
 
   calculateForce();
