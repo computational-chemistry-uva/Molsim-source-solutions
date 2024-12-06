@@ -170,35 +170,35 @@ std::string MonteCarlo::repr()
 
   s += "Monte Carlo program\n";
   s += "----------------------------\n";
-  s += std::format("Number of particles  : {}\n", numberOfParticles);
-  s += std::format("Temperature          : {:6.3f}\n", temperature);
+  s += "Number of particles  : " + std::to_string(numberOfParticles) + "\n";
+  s += "Temperature          : " + std::to_string(temperature) + "\n";
   if (volumeProbability != 0.0)
   {
-    s += std::format("Pressure             : {:6.3f}\n", pressure);
+    s += "Pressure             : " + std::to_string(pressure) + "\n";
   }
-  s += std::format("Box length           : {:6.3f}\n", boxSize);
-  s += std::format("Volume               : {:6.3f}\n", volume);
-  s += std::format("Density              : {:6.3f}\n", density);
-  s += std::format("CutOff radius        : {:6.3f}\n", cutOff);
-  s += std::format("CutOff energy        : {:6.3f}\n", cutOffPrefactor.energy * density);
-  s += std::format("Steps run            : {}\n", cycle);
-  s += std::format("Max displacement     : {:6.3f}\n", maxDisplacement);
-  s += std::format("Translation acc.     : {:6.3f}\n", translationsAccepted / translationsAttempted);
+  s += "Box length           : " + std::to_string(boxSize) + "\n";
+  s += "Volume               : " + std::to_string(volume) + "\n";
+  s += "Density              : " + std::to_string(density) + "\n";
+  s += "CutOff radius        : " + std::to_string(cutOff) + "\n";
+  s += "CutOff energy        : " + std::to_string(cutOffPrefactor.energy * density) + "\n";
+  s += "Steps run            : " + std::to_string(cycle) + "\n";
+  s += "Max displacement     : " + std::to_string(maxDisplacement) + "\n";
+  s += "Translation acc.     : " + std::to_string(translationsAccepted / translationsAttempted) + "\n";
   if (volumeProbability != 0.0)
   {
-    s += std::format("Max volume change    : {:6.3f}\n", maxVolumeChange);
-    s += std::format("Volume acc.          : {:6.3f}\n", volumeAccepted / volumeAttempted);
+    s += "Max volume change    : " + std::to_string(maxVolumeChange) + "\n";
+    s += "Volume acc.          : " + std::to_string(volumeAccepted / volumeAttempted) + "\n";
   }
-  s += std::format("Running energy       : {:6.3f}\n", runningEnergyVirial.energy);
-  s += std::format("Total energy         : {:6.3f}\n", totalEnergyVirial.energy);
-  s += std::format("Drift energy         : {:6.3e}\n", drift.energy);
-  s += std::format("Running virial       : {:6.3f}\n", runningEnergyVirial.virial);
-  s += std::format("Total virial         : {:6.3f}\n", totalEnergyVirial.virial);
-  s += std::format("Drift virial         : {:6.3e}\n", drift.virial);
-  s += std::format("Average pressure     : {:6.3f}\n", average(pressures));
-  s += std::format("Average chem. pot.   : {:6.3f}\n", realChemPot);
-  s += std::format("Average Heat Cap.    : {:6.3f}\n",
-                   variance(energies) / (temperature * temperature * numberOfParticles));
+  s += "Running energy       : " + std::to_string(runningEnergyVirial.energy) + "\n";
+  s += "Total energy         : " + std::to_string(totalEnergyVirial.energy) + "\n";
+  s += "Drift energy         : " + std::to_string(drift.energy / totalEnergyVirial.energy) + "\n";
+  s += "Running virial       : " + std::to_string(runningEnergyVirial.virial) + "\n";
+  s += "Total virial         : " + std::to_string(totalEnergyVirial.virial) + "\n";
+  s += "Drift virial         : " + std::to_string(drift.virial / totalEnergyVirial.virial) + "\n";
+  s += "Average pressure     : " + std::to_string(average(pressures)) + "\n";
+  s += "Average chem. pot.   : " + std::to_string(realChemPot) + "\n";
+  s += "Average Heat Cap.    : " +
+                   std::to_string(variance(energies) / (temperature * temperature * numberOfParticles)) + "\n";
   s += "\n";
   return s;
 }

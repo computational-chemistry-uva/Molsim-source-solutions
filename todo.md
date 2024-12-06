@@ -1,7 +1,7 @@
 
 | Day             | Exercise              | Code type   | Source code | Exercises in jupyter | Pretty plots | Manual updated | Code reviewed |
 | --------------- | --------------------- | ----------- | ----------- | -------------------- | ------------ | -------------- | ------------- |
-| 1 (StatMech)    | Distributions         | python      |             |                      |              |                |               |
+| 1 (StatMech)    | Distributions         | python      | ✅            |                      |              |                |               |
 |                 | Random walk (1D & 2D) | numba       | ✅           |                      |              |                |               |
 | 2 (Basic MC)    | Pi                    | python      | ✅           |                      | ✅            |                |               |
 |                 | Hard Disks            | numba & c++ | ✅           |                      |           |                |               |
@@ -13,13 +13,10 @@
 |                 | NVT Coexistence       | c++         | ✅           |                      |              |                |               |
 |                 | NPT LJ                | c++         | ✅           |                      |              |                |               |
 | 5 (Advanced MD) | Umbrella sampling     | numba       |             |                      |              |                |               |
-|                 | Nosé-Hoover           | c++         |             |                      |              |                |               |
+|                 | Nosé-Hoover           | c++         |  ✅        |                      |              |                |               |
 |                 | Ewald (aux?)          | numba       | ✅           |                      |              |                |               |
 Other:
 - Manual how to use code
-- Presentation on 6th december
-- Remove std::format to allow using c++17
-- Install gromacs, plumed, raspa and micromamba
 
 
 
