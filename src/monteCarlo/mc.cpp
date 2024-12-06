@@ -10,10 +10,10 @@
 
 #include "writePDB.h"
 
-MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles,
+MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles,
                        double temperature, double boxSize, double maxDisplacement, double translationProbability,
-                       double pressure, double volumeProbability, double maxVolumeChange, size_t sampleFrequency,
-                       double sigma, double epsilon, size_t logLevel, size_t seed)
+                       double pressure, double volumeProbability, double maxVolumeChange, int sampleFrequency,
+                       double sigma, double epsilon, int logLevel, int seed)
     : numberOfParticles(numberOfParticles),
       numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
@@ -54,17 +54,17 @@ MonteCarlo::MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size
   logger.debug(repr());
 
   // Calculate number of grid points and grid spacing based on number of particles
-  size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 0.5));
+  int numGrids = static_cast<int>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 0.5));
   double gridSize = boxSize / (static_cast<double>(numGrids) + 2.0);
   logger.debug("numGrids " + std::to_string(numGrids) + " gridSize " + std::to_string(gridSize));
 
   // Initialize particle positions on a grid with slight random perturbations
-  size_t counter = 0;
-  for (size_t i = 0; i < numGrids; ++i)
+  int counter = 0;
+  for (int i = 0; i < numGrids; ++i)
   {
-    for (size_t j = 0; j < numGrids; ++j)
+    for (int j = 0; j < numGrids; ++j)
     {
-      for (size_t k = 0; k < numGrids; ++k)
+      for (int k = 0; k < numGrids; ++k)
       {
         if (counter < numberOfParticles)
         {
@@ -103,7 +103,7 @@ void MonteCarlo::computeChemicalPotential()
 {
   // Estimate chemical potential by inserting random particles
   EnergyVirial chemPotEV;
-  for (size_t k = 0; k < 10; k++)
+  for (int k = 0; k < 10; k++)
   {
     double3 randomPosition = double3(uniform(), uniform(), uniform());
     randomPosition *= boxSize;
@@ -119,7 +119,7 @@ void MonteCarlo::run()
   for (cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; ++cycle)
   {
     // Attempt translation moves
-    for (size_t i = 0; i < numberOfParticles; ++i)
+    for (int i = 0; i < numberOfParticles; ++i)
     {
       double rand = uniform();
       if (rand < volumeProbability)

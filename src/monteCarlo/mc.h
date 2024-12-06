@@ -18,14 +18,14 @@
  */
 struct MonteCarlo
 {
-  size_t numberOfParticles;
+  int numberOfParticles;
   double temperature;
   double boxSize;
   double sigma;
   double epsilon;
-  size_t numberOfInitCycles;
-  size_t numberOfProdCycles;
-  size_t sampleFrequency;
+  int numberOfInitCycles;
+  int numberOfProdCycles;
+  int sampleFrequency;
   double maxDisplacement;
   double translationProbability;
   double pressure;
@@ -38,7 +38,7 @@ struct MonteCarlo
   double density;
   double beta;
 
-  size_t cycle;
+  int cycle;
   double translationsAttempted{0};
   double translationsAccepted{0};
   double volumeAttempted{0};
@@ -58,7 +58,7 @@ struct MonteCarlo
   std::vector<double> energies;
 
   Logger logger;
-  size_t frameNumber = 1;
+  int frameNumber = 1;
 
   /**
    * \brief Constructs a MonteCarlo simulation object.
@@ -82,10 +82,10 @@ struct MonteCarlo
    * \param logLevel Logging level.
    * \param seed Seed for random number generator.
    */
-  MonteCarlo(size_t numberOfParticles, size_t numberOfInitCycles, size_t numberOfProdCycles, double temperature,
+  MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature,
              double boxSize, double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
-             double volumeProbability = 0.0, double maxVolumeChange = 1.0, size_t sampleFrequency = 100,
-             double sigma = 1.0, double epsilon = 1.0, size_t logLevel = 0, size_t seed = 12);
+             double volumeProbability = 0.0, double maxVolumeChange = 1.0, int sampleFrequency = 100,
+             double sigma = 1.0, double epsilon = 1.0, int logLevel = 0, int seed = 12);
 
   /**
    * \brief Generates a uniform random number between 0 and 1.

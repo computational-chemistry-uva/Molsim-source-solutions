@@ -61,13 +61,13 @@ static inline EnergyVirial operator/(const EnergyVirial& a, const EnergyVirial& 
  * \return EnergyVirial object containing energy and virial.
  */
 static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, const double3& particlePosition,
-                                         size_t particleIdx, const double& boxSize, const double& cutOff,
+                                         int particleIdx, const double& boxSize, const double& cutOff,
                                          const double& sigma, const double& epsilon)
 {
   EnergyVirial particleEnergyVirial;
   double cutOffSquared = cutOff * cutOff;
   // Compute energy and virial contributions from interactions with other particles
-  for (size_t i = 0; i < positions.size(); i++)
+  for (int i = 0; i < positions.size(); i++)
   {
     if (i != particleIdx)
     {
@@ -102,7 +102,7 @@ static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, co
   double density = positions.size() / volume;
 
   EnergyVirial systemEnergyVirial;
-  for (size_t i = 0; i < positions.size(); i++)
+  for (int i = 0; i < positions.size(); i++)
   {
     systemEnergyVirial += particleEnergyVirial(positions, positions[i], i, boxSize, cutOff, sigma, epsilon);
   }

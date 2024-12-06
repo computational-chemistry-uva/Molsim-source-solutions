@@ -17,11 +17,11 @@ struct HardDisks
     Static
   };
 
-  size_t numberOfInitCycles;
-  size_t numberOfProdCycles;
-  size_t numberOfParticles;
+  int numberOfInitCycles;
+  int numberOfProdCycles;
+  int numberOfParticles;
   double maxDisplacement;
-  size_t sampleFrequency;
+  int sampleFrequency;
   double boxSize;
 
   Method method;
@@ -29,21 +29,21 @@ struct HardDisks
   std::vector<double2> positions;
   std::vector<std::vector<double2>> samplePositions;
 
-  size_t numberOfAttemptedMoves{0};
-  size_t numberOfAcceptedMoves{0};
+  int numberOfAttemptedMoves{0};
+  int numberOfAcceptedMoves{0};
   double acceptanceRatio;
-  size_t numberOfSamples{0};
+  int numberOfSamples{0};
 
   std::vector<double> rdf;
-  size_t rdfBins;
+  int rdfBins;
   double delta;
   double halfBoxSizeSq;
 
   std::random_device rd;
   std::mt19937 gen{rd()};
 
-  HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_t numberOfParticles, double maxDisplacement,
-            size_t sampleFrequency, double boxSize, size_t rdfBins, bool runStatic);
+  HardDisks(int numberOfInitCycles, int numberOfProdCycles, int numberOfParticles, double maxDisplacement,
+            int sampleFrequency, double boxSize, int rdfBins, bool runStatic);
 
   void initialize();
   void run();

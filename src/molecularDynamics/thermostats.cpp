@@ -1,6 +1,6 @@
 #include "thermostats.h"
 
-VelocityScaling::VelocityScaling(double temperature, size_t degreesOfFreedom)
+VelocityScaling::VelocityScaling(double temperature, int degreesOfFreedom)
     : temperature(temperature), degreesOfFreedom(degreesOfFreedom)
 {
 }
@@ -11,15 +11,15 @@ void VelocityScaling::scale(std::vector<double3>& velocities, double& kineticEne
   double velocityScaling = std::sqrt(temperature * degreesOfFreedom / (2.0 * kineticEnergy));
 
   // $v(t) = s * v'(t)
-  for (size_t i = 0; i < velocities.size(); ++i)
+  for (int i = 0; i < velocities.size(); ++i)
   {
     velocities[i] *= velocityScaling;
   }
   kineticEnergy *= velocityScaling * velocityScaling;
 }
 
-NoseHooverNVT::NoseHooverNVT(double temperature, size_t degreesOfFreedom, double timescaleParameter, double timeStep,
-                             size_t seed)
+NoseHooverNVT::NoseHooverNVT(double temperature, int degreesOfFreedom, double timescaleParameter, double timeStep,
+                             int seed)
     : temperature(temperature),
       degreesOfFreedom(degreesOfFreedom),
       timescaleParameter(timescaleParameter),
@@ -49,7 +49,7 @@ void NoseHooverNVT::scale(std::vector<double3>& velocities, double& kineticEnerg
   thermostatPosition += thermostatVelocity * timeStep;
 
   // $v(t) = s * v'(t)
-  for (size_t i = 0; i < velocities.size(); i++)
+  for (int i = 0; i < velocities.size(); i++)
   {
     velocities[i] *= velocityScaling;
   }

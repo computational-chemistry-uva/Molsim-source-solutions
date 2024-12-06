@@ -7,22 +7,9 @@
 
 #include "writePDB.h"
 
-/**
- * @brief Constructs a MolecularDynamics simulation with the given parameters.
- *
- * Initializes positions, momenta, and forces for the specified number of particles.
- * Also sets up random number generators and samplers.
- *
- * @param numberOfParticles The number of particles in the simulation.
- * @param temperature The initial temperature of the system.
- * @param dt The time step size for integration.
- * @param boxSize The size of the simulation box (assuming cubic box).
- * @param logLevel The logging level for the logger.
- * @param seed The seed for the random number generator.
- */
-MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperature, double dt, double boxSize,
-                                     size_t numberOfEquilibrationSteps, size_t numberOfProductionSteps, bool outputPDB,
-                                     size_t sampleFrequency, size_t logLevel, size_t seed, bool useNoseHoover)
+MolecularDynamics::MolecularDynamics(int numberOfParticles, double temperature, double dt, double boxSize,
+                                     int numberOfEquilibrationSteps, int numberOfProductionSteps, bool outputPDB,
+                                     int sampleFrequency, int logLevel, int seed, bool useNoseHoover)
     : numberOfParticles(numberOfParticles),
       temperature(temperature),
       dt(dt),
@@ -38,7 +25,7 @@ MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperatur
       positions(numberOfParticles),
       momenta(numberOfParticles),
       forces(numberOfParticles),
-      numberOfSamples(static_cast<size_t>(numberOfProductionSteps / sampleFrequency)),
+      numberOfSamples(static_cast<int>(numberOfProductionSteps / sampleFrequency)),
       time(numberOfSamples),
       pressures(numberOfSamples),
       kineticEnergies(numberOfSamples),
@@ -72,7 +59,7 @@ MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperatur
 
   // Initialize momenta with random Gaussian distribution and compute total momentum
   kineticEnergy = 0.0;
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     momenta[i] = double3(normal(), normal(), normal()) * std::sqrt(temperature);
     totalMomentum += momenta[i];
@@ -82,7 +69,7 @@ MolecularDynamics::MolecularDynamics(size_t numberOfParticles, double temperatur
   logger.debug("(Init) initialized momenta.");
 
   // Zero total momentum
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     momenta[i] -= totalMomentum;
   }
@@ -103,18 +90,18 @@ void MolecularDynamics::latticeInitialization()
   // Calculate number of grid points and grid spacing based on number of particles
 
   // $n_grids = \lceil \cbrt{N} + 1.5 \rceil$
-  size_t numGrids = static_cast<size_t>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 1.5));
+  int numGrids = static_cast<int>(std::round(std::pow(numberOfParticles, 1.0 / 3.0) + 1.5));
 
   // $l = L / (n + 2)$
   gridSize = boxSize / (static_cast<double>(numGrids) + 2.0);
   logger.info("numGrids " + std::to_string(numGrids) + " gridSize " + std::to_string(gridSize));
 
-  size_t counter = 0;
-  for (size_t i = 0; i < numGrids; ++i)
+  int counter = 0;
+  for (int i = 0; i < numGrids; ++i)
   {
-    for (size_t j = 0; j < numGrids; ++j)
+    for (int j = 0; j < numGrids; ++j)
     {
-      for (size_t k = 0; k < numGrids; ++k)
+      for (int k = 0; k < numGrids; ++k)
       {
         if (counter < numberOfParticles)
         {
@@ -135,7 +122,7 @@ void MolecularDynamics::gradientDescent()
   std::vector<double3> oldForces(numberOfParticles);
   std::vector<double3> oldPositions(numberOfParticles);
 
-  for (size_t step = 0; step < 1000; ++step)
+  for (int step = 0; step < 1000; ++step)
   {
     if (step == 0)
     {
@@ -163,7 +150,7 @@ void MolecularDynamics::gradientDescent()
 
     // Update positions in the direction of forces (gradient descent step)
     // q_{i+1} = q_i + s * F_i$
-    for (size_t i = 0; i < numberOfParticles; ++i)
+    for (int i = 0; i < numberOfParticles; ++i)
     {
       positions[i] += scaleGradient * forces[i];
       positions[i] = wrap(positions[i], boxSize);
@@ -197,7 +184,7 @@ void MolecularDynamics::calculateForce()
   // Initialize forces to zero and reset potential energy and pressure
   double cutOffSquared = cutOff * cutOff;
 
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     forces[i] = double3();
   }
@@ -206,9 +193,9 @@ void MolecularDynamics::calculateForce()
   pressure = 0.0;
 
   // Loop over all unique particle pairs to compute interactions
-  for (size_t i = 0; i < positions.size() - 1; ++i)
+  for (int i = 0; i < positions.size() - 1; ++i)
   {
-    for (size_t j = i + 1; j < positions.size(); ++j)
+    for (int j = i + 1; j < positions.size(); ++j)
     {
       // Calculate minimum image distance between particles
       double3 dr = positions[i] - positions[j];
@@ -247,7 +234,7 @@ void MolecularDynamics::calculateForce()
 //   // Initialize forces to zero and reset potential energy and pressure
 //   double cutOffSquared = cutOff * cutOff;
 
-//   for (size_t i = 0; i < numberOfParticles; ++i)
+//   for (int i = 0; i < numberOfParticles; ++i)
 //   {
 //     forces[i] = double3();
 //   }
@@ -256,9 +243,9 @@ void MolecularDynamics::calculateForce()
 //   pressure = 0.0;
 
 //   // Loop over all unique particle pairs to compute interactions
-//   for (size_t i = 0; i < positions.size(); ++i)
+//   for (int i = 0; i < positions.size(); ++i)
 //   {
-//     for (size_t j = 0; j < positions.size(); ++j)
+//     for (int j = 0; j < positions.size(); ++j)
 //     {
 //       if (i != j)
 //       {
@@ -311,14 +298,14 @@ void MolecularDynamics::integrate()
 
   // Update momenta half step
   // $p(t + 0.5 \Delta t) = p(t) + 0.5 * F(t) * \Delta t$
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     momenta[i] += 0.5 * forces[i] * dt;
   }
 
   // Update positions
   // $q(t + \Delta t) = q(t) + p(t) * \Delta t + 0.5 * F(t) * (\Delta t)^2$
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     positions[i] += momenta[i] * dt;
   }
@@ -330,7 +317,7 @@ void MolecularDynamics::integrate()
   totalMomentum = double3();
 
   // $p(t + 0.5 \Delta t) = p(t) + 0.5 * F(t) * \Delta t$
-  for (size_t i = 0; i < numberOfParticles; ++i)
+  for (int i = 0; i < numberOfParticles; ++i)
   {
     momenta[i] += 0.5 * forces[i] * dt;
     kineticEnergy += 0.5 * double3::dot(momenta[i], momenta[i]);
@@ -345,7 +332,7 @@ void MolecularDynamics::integrate()
 
 void MolecularDynamics::run()
 {
-  size_t sampleCounter = 0;
+  int sampleCounter = 0;
   // Main simulation loop
   for (step = 0; step < numberOfEquilibrationSteps + numberOfProductionSteps + 1; ++step)
   {

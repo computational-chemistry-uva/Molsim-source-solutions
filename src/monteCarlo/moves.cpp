@@ -7,7 +7,7 @@ void MonteCarlo::translationMove()
 {
   translationsAttempted++;
   // Generate random displacement
-  size_t particleIdx = static_cast<size_t>(uniform() * numberOfParticles);
+  int particleIdx = static_cast<int>(uniform() * numberOfParticles);
   double3 displacement = maxDisplacement * (double3(uniform(), uniform(), uniform()) - 0.5);
   double3 trialPosition = positions[particleIdx] + displacement;
 
@@ -49,7 +49,7 @@ void MonteCarlo::volumeMove()
   double scale = newBoxSize / boxSize;
 
   std::vector<double3> trialPositions(positions);
-  for (size_t i = 0; i < numberOfParticles; i++)
+  for (int i = 0; i < numberOfParticles; i++)
   {
     trialPositions[i] *= scale;
   }

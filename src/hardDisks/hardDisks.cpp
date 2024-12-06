@@ -9,8 +9,8 @@
 #include <random>
 #include <vector>
 
-HardDisks::HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_t numberOfParticles,
-                     double maxDisplacement, size_t sampleFrequency, double boxSize, size_t rdfBins, bool runStatic)
+HardDisks::HardDisks(int numberOfInitCycles, int numberOfProdCycles, int numberOfParticles,
+                     double maxDisplacement, int sampleFrequency, double boxSize, int rdfBins, bool runStatic)
     : numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
       numberOfParticles(numberOfParticles),
@@ -30,11 +30,11 @@ HardDisks::HardDisks(size_t numberOfInitCycles, size_t numberOfProdCycles, size_
 
 void HardDisks::initialize()
 {
-  size_t latticeSites = static_cast<size_t>(boxSize);
+  int latticeSites = static_cast<int>(boxSize);
   std::vector<double2> latticePositions(latticeSites * latticeSites);
-  for (size_t ix = 0; ix < latticeSites; ix++)
+  for (int ix = 0; ix < latticeSites; ix++)
   {
-    for (size_t iy = 0; iy < latticeSites; iy++)
+    for (int iy = 0; iy < latticeSites; iy++)
     {
       latticePositions[ix + latticeSites * iy] = double2(ix, iy);
     }
@@ -75,7 +75,7 @@ void HardDisks::dynamicRun()
 {
   std::uniform_int_distribution<> indexDist(0, numberOfParticles - 1);
   std::uniform_real_distribution<> uniform(-0.5, 0.5);
-  for (size_t cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; cycle++)
+  for (int cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; cycle++)
   {
     numberOfAttemptedMoves++;
 
@@ -85,7 +85,7 @@ void HardDisks::dynamicRun()
     newPosition.y += maxDisplacement * uniform(gen);
 
     bool overlap = false;
-    for (size_t i = 0; i < numberOfParticles; i++)
+    for (int i = 0; i < numberOfParticles; i++)
     {
       if (i != particleIdx)
       {
@@ -120,19 +120,19 @@ void HardDisks::staticRun()
 {
   std::uniform_real_distribution<> uniform(0.0, boxSize);
 
-  for (size_t cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; cycle++)
+  for (int cycle = 0; cycle < numberOfInitCycles + numberOfProdCycles; cycle++)
   {
     numberOfAttemptedMoves++;
     std::vector<double2> newPositions(positions.size());
-    for (size_t i = 0; i < numberOfParticles; i++)
+    for (int i = 0; i < numberOfParticles; i++)
     {
       newPositions[i] = double2(uniform(gen), uniform(gen));
     }
 
     bool overlap = false;
-    for (size_t i = 0; i < numberOfParticles - 1; i++)
+    for (int i = 0; i < numberOfParticles - 1; i++)
     {
-      for (size_t j = i + 1; j < numberOfParticles; j++)
+      for (int j = i + 1; j < numberOfParticles; j++)
       {
         double2 dr = newPositions[i] - newPositions[j];
 
@@ -167,9 +167,9 @@ void HardDisks::staticRun()
 void HardDisks::sampleRDF()
 {
   numberOfSamples++;
-  for (size_t i = 0; i < numberOfParticles - 1; i++)
+  for (int i = 0; i < numberOfParticles - 1; i++)
   {
-    for (size_t j = i + 1; j < numberOfParticles; j++)
+    for (int j = i + 1; j < numberOfParticles; j++)
     {
       double2 dr = positions[i] - positions[j];
       dr.x -= boxSize * std::floor(dr.x / boxSize);
@@ -178,7 +178,7 @@ void HardDisks::sampleRDF()
       double r2 = dot(dr, dr);
       if (r2 < halfBoxSizeSq)
       {
-        size_t idx = static_cast<size_t>(std::sqrt(r2) / delta);
+        int idx = static_cast<int>(std::sqrt(r2) / delta);
         rdf[idx] += 2.0;
       }
     }
@@ -188,7 +188,7 @@ void HardDisks::sampleRDF()
 pybind11::array_t<double> HardDisks::getRDF()
 {
   std::vector<double> normalizedRDF(rdf.size());
-  for (size_t i = 0; i < rdfBins; i++)
+  for (int i = 0; i < rdfBins; i++)
   {
     double areaDiff = M_PI * delta * delta * ((i + 1) * (i + 1) - i * i);
     double invDensitySq = boxSize * boxSize / (numberOfParticles * (numberOfParticles - 1));

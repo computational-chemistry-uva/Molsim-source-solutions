@@ -19,8 +19,8 @@ union double3
 
   bool operator==(double3 const &rhs) const { return (x == rhs.x) && (y == rhs.y) && (z == rhs.z); }
 
-  inline double &operator[](size_t i) { return v[i]; }
-  inline const double &operator[](size_t i) const { return v[i]; }
+  inline double &operator[](int i) { return v[i]; }
+  inline const double &operator[](int i) const { return v[i]; }
 
   double3 operator-() const { return double3(-this->x, -this->y, -this->z); }
   double3 &operator+=(const double3 &b)
@@ -48,11 +48,11 @@ union double3
 
   struct KeyHash
   {
-    size_t operator()(const double3 &k) const
+    int operator()(const double3 &k) const
     {
-      size_t h1 = std::hash<double>()(k.x);
-      size_t h2 = std::hash<double>()(k.y);
-      size_t h3 = std::hash<double>()(k.z);
+      int h1 = std::hash<double>()(k.x);
+      int h2 = std::hash<double>()(k.y);
+      int h3 = std::hash<double>()(k.z);
       return (h1 ^ (h2 << 1)) ^ h3;
     }
   };

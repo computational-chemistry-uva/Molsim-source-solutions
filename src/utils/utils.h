@@ -7,7 +7,7 @@
 class Logger
 {
  public:
-  Logger(size_t logLevel) : logLevel(logLevel) {}
+  Logger(int logLevel) : logLevel(logLevel) {}
 
   void debug(const std::string &message)
   {
@@ -28,7 +28,7 @@ class Logger
   void error(const std::string &message) { pybind11::print("[ERROR]: ", message); }
 
  private:
-  size_t logLevel{0};
+  int logLevel{0};
 };
 
 /**
@@ -97,20 +97,20 @@ static double variance(std::vector<double> &data)
 static std::pair<double, double> blockAverage(std::vector<double> &data)
 {
   std::vector<double> averages(5);
-  std::vector<size_t> counts(5);
-  size_t samplesPerBin = std::round(data.size() / 5);
+  std::vector<int> counts(5);
+  int samplesPerBin = std::round(data.size() / 5);
 
   // Sum data into blocks
-  for (size_t i = 0; i < data.size(); ++i)
+  for (int i = 0; i < data.size(); ++i)
   {
-    size_t bin = std::floor(i * 5 / data.size());
+    int bin = std::floor(i * 5 / data.size());
     averages[bin] += data[i];
     ++counts[bin];
   }
 
   double totalAverage = 0.0;
   // Calculate average for each block
-  for (size_t i = 0; i < 5; ++i)
+  for (int i = 0; i < 5; ++i)
   {
     averages[i] /= counts[i];
     totalAverage += averages[i] / 5;
@@ -118,7 +118,7 @@ static std::pair<double, double> blockAverage(std::vector<double> &data)
 
   double totalVariance = 0.0;
   // Compute variance from block averages
-  for (size_t i = 0; i < 5; ++i)
+  for (int i = 0; i < 5; ++i)
   {
     totalVariance += (averages[i] - totalAverage) * (averages[i] - totalAverage);
   }

@@ -9,11 +9,11 @@
 
 struct SampleRDF
 {
-  size_t numberOfSamples = 0;
-  size_t numberOfBins = 100;
+  int numberOfSamples = 0;
+  int numberOfBins = 100;
   std::vector<double> histogram;
 
-  size_t numberOfParticles;
+  int numberOfParticles;
   double boxSize;
 
   double cutOff;
@@ -21,7 +21,7 @@ struct SampleRDF
 
   std::vector<double> r;
 
-  SampleRDF(size_t numberOfParticles, double boxSize, double cutOff);
+  SampleRDF(int numberOfParticles, double boxSize, double cutOff);
 
   void sample(std::vector<double3>& positions);
   pybind11::array_t<double> getResults();
@@ -30,25 +30,25 @@ struct SampleRDF
 struct SampleMSD
 {
   // Time tracking variables
-  size_t time = 0;
-  size_t originTimeCounter = 0;
-  size_t numberOfCorrelationTimes = 7500;
-  size_t maxOriginTimes = 250;
-  size_t resetOriginInterval = 50;
+  int time = 0;
+  int originTimeCounter = 0;
+  int numberOfCorrelationTimes = 7500;
+  int maxOriginTimes = 250;
+  int resetOriginInterval = 50;
 
-  size_t numberOfParticles;
+  int numberOfParticles;
   double boxSize;
   double sampleTime;
 
   // Data storage vectors
-  std::vector<size_t> sampleCounts;
-  std::vector<size_t> originTimes;
+  std::vector<int> sampleCounts;
+  std::vector<int> originTimes;
   std::vector<double> meanSquareDisplacements;
   std::vector<double> velocityAutocorrelation;
   std::vector<std::vector<double3>> velocityAtOrigin;
   std::vector<std::vector<double3>> positionAtOrigin;
 
-  SampleMSD(size_t numberOfParticles, double boxSize, double sampleTime);
+  SampleMSD(int numberOfParticles, double boxSize, double sampleTime);
 
   void sample(std::vector<double3>& unwrappedPositions, std::vector<double3>& velocities);
   pybind11::array_t<double> getResults();

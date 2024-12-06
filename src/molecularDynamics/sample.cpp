@@ -23,11 +23,11 @@
  * @param numberOfParticles The number of particles in the system.
  * @param boxSize The length of the simulation box (assuming cubic box).
  */
-SampleRDF::SampleRDF(size_t numberOfParticles, double boxSize, double cutOff)
+SampleRDF::SampleRDF(int numberOfParticles, double boxSize, double cutOff)
     : histogram(numberOfBins), numberOfParticles(numberOfParticles), boxSize(boxSize), r(numberOfBins), cutOff(cutOff)
 {
   delta = cutOff / static_cast<double>(numberOfBins);
-  for (size_t i = 0; i < numberOfBins; ++i)
+  for (int i = 0; i < numberOfBins; ++i)
   {
     r[i] = (i + 0.5) * delta;
   }
@@ -45,16 +45,16 @@ void SampleRDF::sample(std::vector<double3>& positions)
   ++numberOfSamples;
 
   // Loop over unique particle pairs
-  for (size_t i = 0; i < numberOfParticles - 1; ++i)
+  for (int i = 0; i < numberOfParticles - 1; ++i)
   {
-    for (size_t j = i + 1; j < numberOfParticles; ++j)
+    for (int j = i + 1; j < numberOfParticles; ++j)
     {
       double3 dr = positions[i] - positions[j];
       dr = wrap(dr, boxSize);
       double dist = std::sqrt(double3::dot(dr, dr));
       if (dist < cutOff)
       {
-        size_t bin = static_cast<size_t>(dist / delta);
+        int bin = static_cast<int>(dist / delta);
         histogram[bin] += 2.0;
       }
     }
@@ -73,7 +73,7 @@ pybind11::array_t<double> SampleRDF::getResults()
   std::vector<double> normalizedHistogram(numberOfBins);
 
   // Function to calculate (i+1)**3 - i**3
-  auto cubeDifference = [](size_t i) -> size_t { return (i + 1) * (i + 1) * (i + 1) - i * i * i; };
+  auto cubeDifference = [](int i) -> int { return (i + 1) * (i + 1) * (i + 1) - i * i * i; };
 
   // Normalization factors
   double volume = boxSize * boxSize * boxSize;
@@ -82,14 +82,15 @@ pybind11::array_t<double> SampleRDF::getResults()
   const double PI = 3.14159265358979323846;
   double prefactor = (4.0 * PI / 3.0) * density * dV * numberOfSamples * numberOfParticles;
 
-  for (size_t i = 0; i < numberOfBins; ++i)
+  for (int i = 0; i < numberOfBins; ++i)
   {
     normalizedHistogram[i] = histogram[i] / (cubeDifference(i) * prefactor);
   }
 
+  // convert to numpy array
   pybind11::array_t<double> result({static_cast<ssize_t>(numberOfBins), static_cast<ssize_t>(2)});
   auto result_mutable = result.mutable_unchecked<2>();
-  for (size_t i = 0; i < numberOfBins; ++i)
+  for (int i = 0; i < numberOfBins; ++i)
   {
     result_mutable(i, 0) = r[i];
     result_mutable(i, 1) = normalizedHistogram[i];
@@ -115,7 +116,7 @@ pybind11::array_t<double> SampleRDF::getResults()
  * @param boxSize The length of the simulation box (assuming cubic box).
  * @param sampleTime The time interval between samples.
  */
-SampleMSD::SampleMSD(size_t numberOfParticles, double boxSize, double sampleTime)
+SampleMSD::SampleMSD(int numberOfParticles, double boxSize, double sampleTime)
     : numberOfParticles(numberOfParticles),
       boxSize(boxSize),
       sampleTime(sampleTime),
@@ -143,7 +144,7 @@ void SampleMSD::sample(std::vector<double3>& unwrappedPositions, std::vector<dou
   // Periodically reset origin times
   if (time % resetOriginInterval == 0)
   {
-    size_t originIndex = originTimeCounter % maxOriginTimes;
+    int originIndex = originTimeCounter % maxOriginTimes;
     originTimes[originIndex] = time;
     ++originTimeCounter;
 
@@ -151,13 +152,13 @@ void SampleMSD::sample(std::vector<double3>& unwrappedPositions, std::vector<dou
     std::copy(velocities.begin(), velocities.end(), velocityAtOrigin[originIndex].begin());
   }
 
-  for (size_t i = 0; i < std::min(originTimeCounter, maxOriginTimes); ++i)
+  for (int i = 0; i < std::min(originTimeCounter, maxOriginTimes); ++i)
   {
     double correlationTime = time - originTimes[i];
     if (correlationTime < numberOfCorrelationTimes)
     {
       ++sampleCounts[correlationTime];
-      for (size_t j = 0; j < numberOfParticles; ++j)
+      for (int j = 0; j < numberOfParticles; ++j)
       {
         velocityAutocorrelation[correlationTime] += double3::dot(velocities[j], velocityAtOrigin[i][j]);
 
@@ -183,7 +184,7 @@ pybind11::array_t<double> SampleMSD::getResults()
   std::vector<double> normalizedVACF(numberOfCorrelationTimes);
   std::vector<double> cumulativeVACF(numberOfCorrelationTimes);
 
-  for (size_t i = 0; i < numberOfCorrelationTimes; ++i)
+  for (int i = 0; i < numberOfCorrelationTimes; ++i)
   {
     normalizedMSD[i] = meanSquareDisplacements[i] / (numberOfParticles * sampleCounts[i]);
     normalizedVACF[i] = velocityAutocorrelation[i] / (numberOfParticles * sampleCounts[i]);
@@ -193,7 +194,7 @@ pybind11::array_t<double> SampleMSD::getResults()
 
   pybind11::array_t<double> result({static_cast<ssize_t>(numberOfCorrelationTimes), static_cast<ssize_t>(5)});
   auto result_mutable = result.mutable_unchecked<2>();
-  for (size_t i = 0; i < numberOfCorrelationTimes; ++i)
+  for (int i = 0; i < numberOfCorrelationTimes; ++i)
   {
     result_mutable(i, 0) = sampleTime * i;
     result_mutable(i, 1) = normalizedMSD[i];

@@ -10,7 +10,7 @@
 PYBIND11_MODULE(molsim, m)
 {
   pybind11::class_<HardDisks>(m, "HardDisks")
-      .def(pybind11::init<size_t, size_t, size_t, double, size_t, double, size_t, bool>(),
+      .def(pybind11::init<int, int, int, double, int, double, int, bool>(),
            pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"), pybind11::arg("numberOfParticles"),
            pybind11::arg("maxDisplacement"), pybind11::arg("sampleFrequency"), pybind11::arg("boxSize"),
            pybind11::arg("rdfBins"), pybind11::arg("runStatic"))
@@ -19,8 +19,8 @@ PYBIND11_MODULE(molsim, m)
       .def_readonly("acceptanceRatio", &HardDisks::acceptanceRatio);
 
   pybind11::class_<MonteCarlo>(m, "MonteCarlo")
-      .def(pybind11::init<size_t, size_t, size_t, double, double, double, double, double, double, double, size_t,
-                          double, double, size_t, size_t>(),
+      .def(pybind11::init<int, int, int, double, double, double, double, double, double, double, int,
+                          double, double, int, int>(),
            pybind11::arg("numberOfParticles"), pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"),
            pybind11::arg("temperature"), pybind11::arg("boxSize"), pybind11::arg("maxDisplacement"),
            pybind11::arg("translationProbability") = 0.0, pybind11::arg("pressure") = 0.0,
@@ -32,7 +32,7 @@ PYBIND11_MODULE(molsim, m)
       .def_readonly("pressures", &MonteCarlo::pressures);
 
   pybind11::class_<MolecularDynamics>(m, "MolecularDynamics")
-      .def(pybind11::init<size_t, double, double, double, size_t, size_t, bool, size_t, size_t, size_t, bool>(),
+      .def(pybind11::init<int, double, double, double, int, int, bool, int, int, int, bool>(),
            pybind11::arg("numberOfParticles"), pybind11::arg("temperature"), pybind11::arg("dt"), pybind11::arg("boxSize"),
            pybind11::arg("numberOfEquilibrationSteps"), pybind11::arg("numberOfProductionSteps"),
            pybind11::arg("outputPDB") = false, pybind11::arg("sampleFrequency") = 100, pybind11::arg("logLevel") = 0,

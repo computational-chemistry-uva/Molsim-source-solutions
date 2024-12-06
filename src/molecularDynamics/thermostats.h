@@ -6,9 +6,9 @@
 struct VelocityScaling
 {
   double temperature;
-  size_t degreesOfFreedom;
+  int degreesOfFreedom;
 
-  VelocityScaling(double temperature, size_t degreesOfFreedom);
+  VelocityScaling(double temperature, int degreesOfFreedom);
   void scale(std::vector<double3>& velocities, double& kineticEnergy);
 };
 
@@ -26,8 +26,8 @@ struct NoseHooverNVT
   std::mt19937 mt;
   std::normal_distribution<double> normal_dist;
 
-  NoseHooverNVT(double temperature, size_t degreesOfFreedom, double timescaleParameter, double timeStep,
-                size_t seed = 12);
+  NoseHooverNVT(double temperature, int degreesOfFreedom, double timescaleParameter, double timeStep,
+                int seed = 12);
 
   void scale(std::vector<double3>& velocities, double& kineticEnergy);
   double getEnergy();

@@ -8,7 +8,7 @@
 
 #include "double3.h"
 
-static void writePDB(const std::string &fileName, std::vector<double3> &positions, double &boxSize, size_t &frameNumber)
+static void writePDB(const std::string &fileName, std::vector<double3> &positions, double &boxSize, int &frameNumber)
 {
   std::ofstream file(fileName, std::ios::app);
 
@@ -22,7 +22,7 @@ static void writePDB(const std::string &fileName, std::vector<double3> &position
   file << "CRYST1   " << std::setw(6) << std::fixed << std::setprecision(3) << boxSize << "   " << std::setw(6)
        << boxSize << "   " << std::setw(6) << boxSize << "  90.00  90.00  90.00 P 1         1\n";
 
-  for (size_t i = 0; i < positions.size(); ++i)
+  for (int i = 0; i < positions.size(); ++i)
   {
     double3 wrapped = wrapFloor(positions[i], boxSize);
     file << std::left << "ATOM" << std::right << std::setw(7) << i << "  H" << std::setw(16) << i << std::fixed

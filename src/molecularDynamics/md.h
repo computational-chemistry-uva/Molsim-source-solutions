@@ -62,22 +62,22 @@
  */
 struct MolecularDynamics
 {
-  size_t numberOfParticles;       ///< Number of particles in the simulation.
+  int numberOfParticles;       ///< Number of particles in the simulation.
   double temperature;             ///< Current temperature of the system.
   double dt;                      ///< Integration time step.
   double boxSize;                 ///< Length of the cubic simulation box.
-  size_t numberOfEquilibrationSteps; ///< Number of equilibration steps before production runs.
-  size_t numberOfProductionSteps; ///< Number of production steps for data collection.
-  size_t sampleFrequency;         ///< Frequency (in steps) at which samples are taken.
+  int numberOfEquilibrationSteps; ///< Number of equilibration steps before production runs.
+  int numberOfProductionSteps; ///< Number of production steps for data collection.
+  int sampleFrequency;         ///< Frequency (in steps) at which samples are taken.
   bool outputPDB;                 ///< Flag indicating whether PDB output should be generated.
   bool useNoseHoover;             ///< Flag indicating whether the Nose-Hoover thermostat is used.
 
-  size_t step;                    ///< Current simulation step index.
+  int step;                    ///< Current simulation step index.
   double cutOff = 3.0;            ///< Lennard-Jones potential cutoff radius.
   double cutOffEnergy;            ///< Shifted potential energy value at the cutoff radius.
   double volume;                  ///< Volume of the simulation box.
   double density;                 ///< Particle density (number of particles per volume).
-  size_t degreesOfFreedom;        ///< Degrees of freedom for the system (3N - constraints).
+  int degreesOfFreedom;        ///< Degrees of freedom for the system (3N - constraints).
   double3 totalMomentum;          ///< Total linear momentum of all particles combined.
   double gridSize;                ///< Grid spacing used during lattice initialization.
 
@@ -92,7 +92,7 @@ struct MolecularDynamics
   std::uniform_real_distribution<double> uniform_dist; ///< Uniform distribution for random sampling.
   std::normal_distribution<double> normal_dist;         ///< Normal (Gaussian) distribution for random sampling.
 
-  size_t numberOfSamples;    ///< Number of samples recorded during production.
+  int numberOfSamples;    ///< Number of samples recorded during production.
   double pressure;           ///< Instantaneous pressure of the system.
   double kineticEnergy;      ///< Instantaneous kinetic energy.
   double potentialEnergy;    ///< Instantaneous potential energy.
@@ -113,7 +113,7 @@ struct MolecularDynamics
   SampleMSD msdSampler; ///< Mean-square displacement (MSD) sampler.
 
   Logger logger;         ///< Logger instance for output messages.
-  size_t frameNumber = 1; ///< Frame counter for outputting snapshots.
+  int frameNumber = 1; ///< Frame counter for outputting snapshots.
 
   /**
    * @brief Constructs the MolecularDynamics simulation object.
@@ -134,9 +134,9 @@ struct MolecularDynamics
    * @param seed Random number generator seed.
    * @param useNoseHoover Whether to use the Nose-Hoover thermostat.
    */
-  MolecularDynamics(size_t numberOfParticles, double temperature, double dt, double boxSize,
-                    size_t numberOfEquilibrationSteps, size_t numberOfProductionSteps, bool outputPDB = true,
-                    size_t sampleFrequency = 100, size_t logLevel = 0, size_t seed = 12, bool useNoseHoover = false);
+  MolecularDynamics(int numberOfParticles, double temperature, double dt, double boxSize,
+                    int numberOfEquilibrationSteps, int numberOfProductionSteps, bool outputPDB = true,
+                    int sampleFrequency = 100, int logLevel = 0, int seed = 12, bool useNoseHoover = false);
 
   double uniform() { return uniform_dist(mt); }
   double normal() { return normal_dist(mt); }
