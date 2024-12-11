@@ -26,8 +26,7 @@ struct NoseHooverNVT
   std::mt19937 mt;
   std::normal_distribution<double> normal_dist;
 
-  NoseHooverNVT(double temperature, int degreesOfFreedom, double timescaleParameter, double timeStep,
-                int seed = 12);
+  NoseHooverNVT(double temperature, int degreesOfFreedom, double timescaleParameter, double timeStep, int seed = 12);
 
   void scale(std::vector<double3>& velocities, double& kineticEnergy);
   double getEnergy();

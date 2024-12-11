@@ -2,7 +2,6 @@ import sys
 from setuptools import setup, find_packages
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
-# Define the extension
 ext_modules = [
     Pybind11Extension(
         "molsim._molsim",
@@ -21,7 +20,7 @@ ext_modules = [
             "src/monteCarlo",
             "src/utils",
         ],
-        cxx_std=20,  # Requires C++20 as per original CMake
+        cxx_std=20,
     )
 ]
 

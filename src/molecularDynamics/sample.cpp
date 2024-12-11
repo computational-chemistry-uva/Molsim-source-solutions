@@ -14,7 +14,6 @@
   -------------------------------------------------------------
  */
 
-
 /**
  * @brief Constructs a SampleRDF object for computing the radial distribution function.
  *

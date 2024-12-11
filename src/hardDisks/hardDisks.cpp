@@ -9,8 +9,8 @@
 #include <random>
 #include <vector>
 
-HardDisks::HardDisks(int numberOfInitCycles, int numberOfProdCycles, int numberOfParticles,
-                     double maxDisplacement, int sampleFrequency, double boxSize, int rdfBins, bool runStatic)
+HardDisks::HardDisks(int numberOfInitCycles, int numberOfProdCycles, int numberOfParticles, double maxDisplacement,
+                     int sampleFrequency, double boxSize, int rdfBins, bool runStatic)
     : numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
       numberOfParticles(numberOfParticles),

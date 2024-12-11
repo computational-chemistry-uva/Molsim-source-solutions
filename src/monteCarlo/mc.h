@@ -82,8 +82,8 @@ struct MonteCarlo
    * \param logLevel Logging level.
    * \param seed Seed for random number generator.
    */
-  MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature,
-             double boxSize, double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
+  MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature, double boxSize,
+             double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
              double volumeProbability = 0.0, double maxVolumeChange = 1.0, int sampleFrequency = 100,
              double sigma = 1.0, double epsilon = 1.0, int logLevel = 0, int seed = 12);
 

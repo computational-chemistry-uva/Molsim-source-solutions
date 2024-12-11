@@ -10,10 +10,10 @@
 
 #include "writePDB.h"
 
-MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles,
-                       double temperature, double boxSize, double maxDisplacement, double translationProbability,
-                       double pressure, double volumeProbability, double maxVolumeChange, int sampleFrequency,
-                       double sigma, double epsilon, int logLevel, int seed)
+MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature,
+                       double boxSize, double maxDisplacement, double translationProbability, double pressure,
+                       double volumeProbability, double maxVolumeChange, int sampleFrequency, double sigma,
+                       double epsilon, int logLevel, int seed)
     : numberOfParticles(numberOfParticles),
       numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
@@ -197,8 +197,9 @@ std::string MonteCarlo::repr()
   s += "Drift virial         : " + std::to_string(drift.virial / totalEnergyVirial.virial) + "\n";
   s += "Average pressure     : " + std::to_string(average(pressures)) + "\n";
   s += "Average chem. pot.   : " + std::to_string(realChemPot) + "\n";
-  s += "Average Heat Cap.    : " +
-                   std::to_string(variance(energies) / (temperature * temperature * numberOfParticles)) + "\n";
+  s +=
+      "Average Heat Cap.    : " + std::to_string(variance(energies) / (temperature * temperature * numberOfParticles)) +
+      "\n";
   s += "\n";
   return s;
 }
