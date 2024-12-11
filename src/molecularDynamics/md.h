@@ -20,16 +20,20 @@
  * `src/molecularDynamics/samplers.h`.
  *
  * The constructor `MolecularDynamics::MolecularDynamics` initializes the simulation:
- * - It sets up the system based on input parameters such as number of particles, temperature, box size, and number of steps.
+ * - It sets up the system based on input parameters such as number of particles, temperature, box size, and number of
+ * steps.
  * - It precomputes system properties like volume and density.
- * - It initializes particle velocities according to the Maxwell-Boltzmann distribution (mass = 1, hence momentum = velocity).
+ * - It initializes particle velocities according to the Maxwell-Boltzmann distribution (mass = 1, hence momentum =
+ * velocity).
  * - It calls `MolecularDynamics::latticeInitialization` to place particles on a cubic lattice to avoid overlaps.
- * - It then refines the initial configuration using `MolecularDynamics::gradientDescent` to move towards a local energy minimum.
+ * - It then refines the initial configuration using `MolecularDynamics::gradientDescent` to move towards a local energy
+ * minimum.
  *
  * After initialization, the simulation uses the velocity Verlet integrator to propagate the system:
  * - In the velocity Verlet scheme, velocities are updated in half-steps and positions in full steps.
  * - Forces are calculated by `MolecularDynamics::calculateForce`, which implements pairwise Lennard-Jones interactions.
- * - The Lennard-Jones potential models both repulsive ($r^{-12}$) and attractive ($r^{-6}$) interactions, and is combined with a cutoff.
+ * - The Lennard-Jones potential models both repulsive ($r^{-12}$) and attractive ($r^{-6}$) interactions, and is
+ * combined with a cutoff.
  * - The potential energy, pressure (via the virial), and forces are computed during the force calculation.
  *
  * The equations of motion implemented are for an NVE ensemble:
@@ -52,68 +56,68 @@
  * \]
  * where \f$F(t) = -\frac{\partial \mathcal{U}}{\partial q}\f$.
  *
- * For equilibration, a `VelocityScaling` thermostat may be used to maintain the input temperature. Although the final runs
- * may be NVE (no thermostat), during initial equilibration the thermostat helps adjust velocities to match the given temperature.
- * Other thermostats, such as Nose-Hoover, may also be used (defined in `thermostats.h`).
+ * For equilibration, a `VelocityScaling` thermostat may be used to maintain the input temperature. Although the final
+ * runs may be NVE (no thermostat), during initial equilibration the thermostat helps adjust velocities to match the
+ * given temperature. Other thermostats, such as Nose-Hoover, may also be used (defined in `thermostats.h`).
  *
- * In addition, the class provides sampling tools to measure properties like RDF and MSD from `samplers.h`, and logging capabilities.
- * Overall, this class provides the main interface to run MD simulations, from initialization, through equilibration and production,
- * to analysis of thermodynamic and structural properties.
+ * In addition, the class provides sampling tools to measure properties like RDF and MSD from `samplers.h`, and logging
+ * capabilities. Overall, this class provides the main interface to run MD simulations, from initialization, through
+ * equilibration and production, to analysis of thermodynamic and structural properties.
  */
 struct MolecularDynamics
 {
-  int numberOfParticles;       ///< Number of particles in the simulation.
-  double temperature;             ///< Current temperature of the system.
-  double dt;                      ///< Integration time step.
-  double boxSize;                 ///< Length of the cubic simulation box.
-  int numberOfEquilibrationSteps; ///< Number of equilibration steps before production runs.
-  int numberOfProductionSteps; ///< Number of production steps for data collection.
-  int sampleFrequency;         ///< Frequency (in steps) at which samples are taken.
-  bool outputPDB;                 ///< Flag indicating whether PDB output should be generated.
-  bool useNoseHoover;             ///< Flag indicating whether the Nose-Hoover thermostat is used.
+  int numberOfParticles;           ///< Number of particles in the simulation.
+  double temperature;              ///< Current temperature of the system.
+  double dt;                       ///< Integration time step.
+  double boxSize;                  ///< Length of the cubic simulation box.
+  int numberOfEquilibrationSteps;  ///< Number of equilibration steps before production runs.
+  int numberOfProductionSteps;     ///< Number of production steps for data collection.
+  int sampleFrequency;             ///< Frequency (in steps) at which samples are taken.
+  bool outputPDB;                  ///< Flag indicating whether PDB output should be generated.
+  bool useNoseHoover;              ///< Flag indicating whether the Nose-Hoover thermostat is used.
 
-  int step;                    ///< Current simulation step index.
-  double cutOff = 3.0;            ///< Lennard-Jones potential cutoff radius.
-  double cutOffEnergy;            ///< Shifted potential energy value at the cutoff radius.
-  double volume;                  ///< Volume of the simulation box.
-  double density;                 ///< Particle density (number of particles per volume).
-  int degreesOfFreedom;        ///< Degrees of freedom for the system (3N - constraints).
-  double3 totalMomentum;          ///< Total linear momentum of all particles combined.
-  double gridSize;                ///< Grid spacing used during lattice initialization.
+  int step;               ///< Current simulation step index.
+  double cutOff = 3.0;    ///< Lennard-Jones potential cutoff radius.
+  double cutOffEnergy;    ///< Shifted potential energy value at the cutoff radius.
+  double volume;          ///< Volume of the simulation box.
+  double density;         ///< Particle density (number of particles per volume).
+  int degreesOfFreedom;   ///< Degrees of freedom for the system (3N - constraints).
+  double3 totalMomentum;  ///< Total linear momentum of all particles combined.
+  double gridSize;        ///< Grid spacing used during lattice initialization.
 
-  VelocityScaling velocityScaling; ///< Velocity scaling instance for simple thermostatting.
-  NoseHooverNVT noseHoover;       ///< Nose-Hoover thermostat instance for NVT ensemble simulation.
+  VelocityScaling velocityScaling;  ///< Velocity scaling instance for simple thermostatting.
+  NoseHooverNVT noseHoover;         ///< Nose-Hoover thermostat instance for NVT ensemble simulation.
 
-  std::vector<double3> positions; ///< Positions of all particles in the system.
-  std::vector<double3> momenta;   ///< Momenta of all particles.
-  std::vector<double3> forces;    ///< Forces acting on each particle.
+  std::vector<double3> positions;  ///< Positions of all particles in the system.
+  std::vector<double3> momenta;    ///< Momenta of all particles.
+  std::vector<double3> forces;     ///< Forces acting on each particle.
 
-  std::mt19937 mt;                              ///< Mersenne Twister random number generator.
-  std::uniform_real_distribution<double> uniform_dist; ///< Uniform distribution for random sampling.
+  std::mt19937 mt;                                      ///< Mersenne Twister random number generator.
+  std::uniform_real_distribution<double> uniform_dist;  ///< Uniform distribution for random sampling.
   std::normal_distribution<double> normal_dist;         ///< Normal (Gaussian) distribution for random sampling.
 
-  int numberOfSamples;    ///< Number of samples recorded during production.
-  double pressure;           ///< Instantaneous pressure of the system.
-  double kineticEnergy;      ///< Instantaneous kinetic energy.
-  double potentialEnergy;    ///< Instantaneous potential energy.
-  double conservedEnergy{0.0}; ///< Instantaneous conserved energy (kinetic + potential [+ thermostat]).
-  double observedTemperature; ///< Instantaneous observed temperature.
+  int numberOfSamples;              ///< Number of samples recorded during production.
+  double pressure;                  ///< Instantaneous pressure of the system.
+  double kineticEnergy{0.0};        ///< Instantaneous kinetic energy.
+  double potentialEnergy{0.0};      ///< Instantaneous potential energy.
+  double conservedEnergy{0.0};      ///< Instantaneous conserved energy (kinetic + potential [+ thermostat]).
+  double observedTemperature{0.0};  ///< Instantaneous observed temperature.
 
-  std::vector<double> time;              ///< Times at which samples are taken.
-  std::vector<double> pressures;         ///< Pressure samples over simulation time.
-  std::vector<double> kineticEnergies;   ///< Kinetic energy samples over simulation time.
-  std::vector<double> potentialEnergies; ///< Potential energy samples over simulation time.
-  std::vector<double> conservedEnergies; ///< Conserved energy samples over simulation time.
-  std::vector<double> observedTemperatures; ///< Temperature samples over simulation time.
+  std::vector<double> time;                  ///< Times at which samples are taken.
+  std::vector<double> pressures;             ///< Pressure samples over simulation time.
+  std::vector<double> kineticEnergies;       ///< Kinetic energy samples over simulation time.
+  std::vector<double> potentialEnergies;     ///< Potential energy samples over simulation time.
+  std::vector<double> conservedEnergies;     ///< Conserved energy samples over simulation time.
+  std::vector<double> observedTemperatures;  ///< Temperature samples over simulation time.
 
-  double baselineEnergy = 0.0; ///< Baseline energy for assessing energy drift.
-  double driftEnergy = 0.0;    ///< Computed drift in conserved energy.
+  double baselineEnergy = 0.0;  ///< Baseline energy for assessing energy drift.
+  double driftEnergy = 0.0;     ///< Computed drift in conserved energy.
 
-  SampleRDF rdfSampler; ///< Radial distribution function (RDF) sampler.
-  SampleMSD msdSampler; ///< Mean-square displacement (MSD) sampler.
+  SampleRDF rdfSampler;  ///< Radial distribution function (RDF) sampler.
+  SampleMSD msdSampler;  ///< Mean-square displacement (MSD) sampler.
 
-  Logger logger;         ///< Logger instance for output messages.
-  int frameNumber = 1; ///< Frame counter for outputting snapshots.
+  Logger logger;        ///< Logger instance for output messages.
+  int frameNumber = 1;  ///< Frame counter for outputting snapshots.
 
   /**
    * @brief Constructs the MolecularDynamics simulation object.

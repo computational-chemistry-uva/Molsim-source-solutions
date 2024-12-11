@@ -346,7 +346,7 @@ void MolecularDynamics::run()
     if (step % sampleFrequency == 0)
     {
       logger.info(repr());
-      if (outputPDB) 
+      if (outputPDB)
       {
         writePDB("movie.pdb", positions, boxSize, frameNumber);
         ++frameNumber;
@@ -395,7 +395,6 @@ void MolecularDynamics::logThermodynamicalAverages()
   logger.info(s);
 }
 
-
 std::string MolecularDynamics::repr()
 {
   std::string s;
@@ -420,7 +419,8 @@ std::string MolecularDynamics::repr()
   }
   if (step > numberOfEquilibrationSteps)
   {
-    s += "Drift energy         : " + std::to_string(std::abs((conservedEnergy - baselineEnergy) / baselineEnergy)) + "\n";
+    s += "Drift energy         : " + std::to_string(std::abs((conservedEnergy - baselineEnergy) / baselineEnergy)) +
+         "\n";
   }
   s += "\n";
   return s;
