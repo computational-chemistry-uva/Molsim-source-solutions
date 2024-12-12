@@ -66,7 +66,7 @@ def checkOverlap(newPosition: float, positions: np.ndarray, boxSize: float, part
         bool: True if there is an overlap (or invalid placement), False otherwise.
     """
     # If PBC is off, ensure the particle stays within [0, boxSize]
-    if periodicBoundary or (np.all(newPosition >= 0) and np.all(newPosition <= boxSize)):
+    if periodicBoundary or (np.all(newPosition >= (0+0.5)) and np.all(newPosition <= (boxSize-0.5))):
         # Compute displacement vectors to all other particles
         dr = newPosition - positions
 
@@ -80,7 +80,7 @@ def checkOverlap(newPosition: float, positions: np.ndarray, boxSize: float, part
         # Ignore the particle itself
         d[particleIdx] = np.inf
 
-        # Check if any particle is too close (overlap)
+        # Check if any particle is too close (overlap)s
         return np.any(d < 1.0)
     else:
         # If outside the box and no PBC, this is invalid
@@ -124,8 +124,8 @@ def dynamicHardDisks(
 
     # Populate lattice positions evenly spaced in x and y
     count = 0
-    for x in np.linspace(0, (1 - 1 / latticeSites) * boxSize, latticeSites):
-        for y in np.linspace(0, (1 - 1 / latticeSites) * boxSize, latticeSites):
+    for x in np.linspace(0.5, (1 - 1 / latticeSites) * boxSize-0.5, latticeSites):
+        for y in np.linspace(0.5, (1 - 1 / latticeSites) * boxSize-0.5, latticeSites):
             positions[count] = np.array([x, y])
             count += 1
 
@@ -180,7 +180,7 @@ def dynamicHardDisks(
     # Print the acceptance fraction
     print(f"Acceptance fraction: {numberOfAcceptedMoves / numberOfAttemptedMoves}")
 
-    return samplePositions % boxSize, rdf, moveAccepted
+    return samplePositions % boxSize, [rdf,edges[1:]], moveAccepted
 
 
 @numba.njit
@@ -221,8 +221,8 @@ def staticHardDisks(
 
     # Fill the lattice positions
     count = 0
-    for x in np.linspace(0, (1 - 1 / latticeSites) * boxSize, latticeSites):
-        for y in np.linspace(0, (1 - 1 / latticeSites) * boxSize, latticeSites):
+    for x in np.linspace(0.5, (1 - 1 / latticeSites) * boxSize-0.5, latticeSites):
+        for y in np.linspace(0.5, (1 - 1 / latticeSites) * boxSize-0.5, latticeSites):
             positions[count] = np.array([x, y])
             count += 1
 
