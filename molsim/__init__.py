@@ -1,4 +1,4 @@
-from _molsim import HardDisks, MonteCarlo, MolecularDynamics
+from ._molsim import HardDisks, MonteCarlo, MolecularDynamics
 from .mullerBrown import (
     mullerBrownPotential,
     mullerBrownGradient_dx,

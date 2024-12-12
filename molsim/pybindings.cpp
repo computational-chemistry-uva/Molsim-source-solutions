@@ -19,25 +19,27 @@ PYBIND11_MODULE(_molsim, m)
       .def_readonly("acceptanceRatio", &HardDisks::acceptanceRatio);
 
   pybind11::class_<MonteCarlo>(m, "MonteCarlo")
-      .def(pybind11::init<int, int, int, double, double, double, double, double, double, double, int, double, double,
-                          int, int>(),
+      .def(pybind11::init<int, int, int, double, double, double, double, double, double, double, int, int, int>(),
            pybind11::arg("numberOfParticles"), pybind11::arg("numberOfInitCycles"), pybind11::arg("numberOfProdCycles"),
            pybind11::arg("temperature"), pybind11::arg("boxSize"), pybind11::arg("maxDisplacement"),
            pybind11::arg("translationProbability") = 0.0, pybind11::arg("pressure") = 0.0,
            pybind11::arg("volumeProbability") = 0.0, pybind11::arg("maxVolumeChange") = 1.0,
-           pybind11::arg("sampleFrequency") = 100, pybind11::arg("sigma") = 1.0, pybind11::arg("epsilon") = 1.0,
-           pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
+           pybind11::arg("sampleFrequency") = 100, pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12)
       .def("__repr__", &MonteCarlo::repr)
       .def("run", &MonteCarlo::run)
-      .def_readonly("pressures", &MonteCarlo::pressures);
+      .def_readonly("pressures", &MonteCarlo::pressures)
+      .def_readonly("energies", &MonteCarlo::energies)
+      .def_readonly("particleCounts", &MonteCarlo::particleCounts)
+      .def_readonly("volumes", &MonteCarlo::volumes)
+      .def_readonly("driftEnergies", &MonteCarlo::driftEnergies);
 
   pybind11::class_<MolecularDynamics>(m, "MolecularDynamics")
-      .def(pybind11::init<int, double, double, double, int, int, bool, int, int, int, bool>(),
+      .def(pybind11::init<int, double, double, double, int, int, bool, int, int, int, bool, int>(),
            pybind11::arg("numberOfParticles"), pybind11::arg("temperature"), pybind11::arg("dt"),
            pybind11::arg("boxSize"), pybind11::arg("numberOfEquilibrationSteps"),
            pybind11::arg("numberOfProductionSteps"), pybind11::arg("outputPDB") = false,
            pybind11::arg("sampleFrequency") = 100, pybind11::arg("logLevel") = 0, pybind11::arg("seed") = 12,
-           pybind11::arg("useNoseHoover") = false)
+           pybind11::arg("useNoseHoover") = false, pybind11::arg("noseHooverTimeScaleParameter") = 500)
       .def_readonly("rdfSampler", &MolecularDynamics::rdfSampler)
       .def_readonly("msdSampler", &MolecularDynamics::msdSampler)
       .def_readonly("time", &MolecularDynamics::time)

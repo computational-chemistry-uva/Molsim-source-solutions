@@ -61,8 +61,7 @@ static inline EnergyVirial operator/(const EnergyVirial& a, const EnergyVirial& 
  * \return EnergyVirial object containing energy and virial.
  */
 static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, const double3& particlePosition,
-                                         int particleIdx, const double& boxSize, const double& cutOff,
-                                         const double& sigma, const double& epsilon)
+                                         int particleIdx, const double& boxSize, const double& cutOff)
 {
   EnergyVirial particleEnergyVirial;
   double cutOffSquared = cutOff * cutOff;
@@ -76,11 +75,11 @@ static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, 
       double r2 = double3::dot(dr, dr);
       if (r2 < cutOffSquared)
       {
-        double r2i = (sigma * sigma) / r2;
+        double r2i = 1.0 / r2;
         double r6i = r2i * r2i * r2i;
 
-        particleEnergyVirial.energy += 4.0 * epsilon * (r6i * r6i - r6i);
-        particleEnergyVirial.virial += 48.0 * epsilon * (r6i * r6i - 0.5 * r6i);
+        particleEnergyVirial.energy += 4.0 * (r6i * r6i - r6i);
+        particleEnergyVirial.virial += 48.0 * (r6i * r6i - 0.5 * r6i);
       }
     }
   }
@@ -95,8 +94,7 @@ static EnergyVirial particleEnergyVirial(const std::vector<double3>& positions, 
  * \return EnergyVirial object containing total energy and virial.
  */
 static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, const double& boxSize,
-                                       const double& cutOff, const double& sigma, const double& epsilon,
-                                       EnergyVirial cutOffPrefactor)
+                                       const double& cutOff, EnergyVirial cutOffPrefactor)
 {
   double volume = boxSize * boxSize * boxSize;
   double density = positions.size() / volume;
@@ -104,7 +102,7 @@ static EnergyVirial systemEnergyVirial(const std::vector<double3>& positions, co
   EnergyVirial systemEnergyVirial;
   for (int i = 0; i < positions.size(); i++)
   {
-    systemEnergyVirial += particleEnergyVirial(positions, positions[i], i, boxSize, cutOff, sigma, epsilon);
+    systemEnergyVirial += particleEnergyVirial(positions, positions[i], i, boxSize, cutOff);
   }
   systemEnergyVirial.energy /= 2.0;
   systemEnergyVirial.virial /= 2.0;

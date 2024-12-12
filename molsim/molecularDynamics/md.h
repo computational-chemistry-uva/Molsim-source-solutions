@@ -97,7 +97,7 @@ struct MolecularDynamics
   std::normal_distribution<double> normal_dist;         ///< Normal (Gaussian) distribution for random sampling.
 
   int numberOfSamples;              ///< Number of samples recorded during production.
-  double pressure;                  ///< Instantaneous pressure of the system.
+  double pressure{0.0};             ///< Instantaneous pressure of the system.
   double kineticEnergy{0.0};        ///< Instantaneous kinetic energy.
   double potentialEnergy{0.0};      ///< Instantaneous potential energy.
   double conservedEnergy{0.0};      ///< Instantaneous conserved energy (kinetic + potential [+ thermostat]).
@@ -140,7 +140,8 @@ struct MolecularDynamics
    */
   MolecularDynamics(int numberOfParticles, double temperature, double dt, double boxSize,
                     int numberOfEquilibrationSteps, int numberOfProductionSteps, bool outputPDB = true,
-                    int sampleFrequency = 100, int logLevel = 0, int seed = 12, bool useNoseHoover = false);
+                    int sampleFrequency = 100, int logLevel = 0, int seed = 12, bool useNoseHoover = false,
+                    int noseHooverTimeScaleParameter = 500);
 
   double uniform() { return uniform_dist(mt); }
   double normal() { return normal_dist(mt); }

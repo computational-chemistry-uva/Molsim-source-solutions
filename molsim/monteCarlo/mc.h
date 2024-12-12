@@ -21,8 +21,6 @@ struct MonteCarlo
   int numberOfParticles;
   double temperature;
   double boxSize;
-  double sigma;
-  double epsilon;
   int numberOfInitCycles;
   int numberOfProdCycles;
   int sampleFrequency;
@@ -32,7 +30,7 @@ struct MonteCarlo
   double volumeProbability;
   double maxVolumeChange;
 
-  double cutOff;
+  double cutOff{3.0};
   EnergyVirial cutOffPrefactor;
   double volume;
   double density;
@@ -53,9 +51,12 @@ struct MonteCarlo
   EnergyVirial totalEnergyVirial;
 
   EnergyVirial drift;
+  std::vector<double> driftEnergies;
   std::vector<double> pressures;
-  std::vector<double> chemicalPotentials;
+  std::vector<double> widomWeights;
   std::vector<double> energies;
+  std::vector<double> volumes;
+  std::vector<double> particleCounts;
 
   Logger logger;
   int frameNumber = 1;
@@ -77,15 +78,13 @@ struct MonteCarlo
    * \param maxVolumeChange Maximum volume change of a volume move
    * \param swapProbability
    * \param sampleFrequency Frequency of sampling the system.
-   * \param sigma Lennard-Jones sigma parameter.
-   * \param epsilon Lennard-Jones epsilon parameter.
    * \param logLevel Logging level.
    * \param seed Seed for random number generator.
    */
   MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature, double boxSize,
              double maxDisplacement, double translationProbability = 1.0, double pressure = 0.0,
-             double volumeProbability = 0.0, double maxVolumeChange = 1.0, int sampleFrequency = 100,
-             double sigma = 1.0, double epsilon = 1.0, int logLevel = 0, int seed = 12);
+             double volumeProbability = 0.0, double maxVolumeChange = 1.0, int sampleFrequency = 100, int logLevel = 0,
+             int seed = 12);
 
   /**
    * \brief Generates a uniform random number between 0 and 1.

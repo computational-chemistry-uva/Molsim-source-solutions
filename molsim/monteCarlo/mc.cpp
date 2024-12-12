@@ -12,8 +12,7 @@
 
 MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int numberOfProdCycles, double temperature,
                        double boxSize, double maxDisplacement, double translationProbability, double pressure,
-                       double volumeProbability, double maxVolumeChange, int sampleFrequency, double sigma,
-                       double epsilon, int logLevel, int seed)
+                       double volumeProbability, double maxVolumeChange, int sampleFrequency, int logLevel, int seed)
     : numberOfParticles(numberOfParticles),
       numberOfInitCycles(numberOfInitCycles),
       numberOfProdCycles(numberOfProdCycles),
@@ -25,25 +24,21 @@ MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int number
       volumeProbability(volumeProbability),
       maxVolumeChange(maxVolumeChange),
       sampleFrequency(sampleFrequency),
-      sigma(sigma),
-      epsilon(epsilon),
       positions(numberOfParticles),
       mt(seed),
       uniform_dist(0.0, 1.0),
       logger(logLevel)
 
 {
-  // Calculate cutoff radius, cutoff energy, and system properties
-  cutOff = 3.0 * sigma;
-
+  // Calculate cutoff energy, and system properties
   volume = boxSize * boxSize * boxSize;
   density = numberOfParticles / volume;
   beta = 1 / temperature;
 
-  double sigmaOverCutoff = sigma / cutOff;
-  double r3i = sigmaOverCutoff * sigmaOverCutoff * sigmaOverCutoff;
-  cutOffPrefactor = EnergyVirial(epsilon * (8.0 / 3.0) * M_PI * ((1.0 / 3.0) * r3i * r3i * r3i - r3i),
-                                 epsilon * (16.0 / 3.0) * M_PI * ((2.0 / 3.0) * r3i * r3i * r3i - r3i));
+  double invCutoff = 1.0 / cutOff;
+  double r3i = invCutoff * invCutoff * invCutoff;
+  cutOffPrefactor = EnergyVirial((8.0 / 3.0) * M_PI * ((1.0 / 3.0) * r3i * r3i * r3i - r3i),
+                                 (16.0 / 3.0) * M_PI * ((2.0 / 3.0) * r3i * r3i * r3i - r3i));
 
   // Empty movie.pdb file
   std::ofstream file("movie.pdb");
@@ -83,7 +78,7 @@ MonteCarlo::MonteCarlo(int numberOfParticles, int numberOfInitCycles, int number
   writePDB("movie.pdb", positions, boxSize, frameNumber);
   ++frameNumber;
 
-  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
+  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, cutOffPrefactor);
   runningEnergyVirial = totalEnergyVirial;
 
   logger.info("(Init) completed. Total energy: " + std::to_string(totalEnergyVirial.energy) +
@@ -102,15 +97,15 @@ void MonteCarlo::computePressure()
 void MonteCarlo::computeChemicalPotential()
 {
   // Estimate chemical potential by inserting random particles
-  EnergyVirial chemPotEV;
+  EnergyVirial widomEnergyVirial;
   for (int k = 0; k < 10; k++)
   {
     double3 randomPosition = double3(uniform(), uniform(), uniform());
     randomPosition *= boxSize;
-    chemPotEV += particleEnergyVirial(positions, randomPosition, -1, boxSize, cutOff, sigma, epsilon);
+    widomEnergyVirial += particleEnergyVirial(positions, randomPosition, -1, boxSize, cutOff);
   }
-  double chemicalPotential = std::exp(-beta * chemPotEV.energy);
-  chemicalPotentials.push_back(chemicalPotential);
+  double widomWeight = std::exp(-beta * widomEnergyVirial.energy);
+  widomWeights.push_back(widomWeight);
 }
 
 void MonteCarlo::run()
@@ -135,7 +130,7 @@ void MonteCarlo::run()
     // Every sampleFrequency cycles, compute and log properties
     if (cycle % sampleFrequency == 0)
     {
-      totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
+      totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, cutOffPrefactor);
       logger.info(repr());
       writePDB("movie.pdb", positions, boxSize, frameNumber);
       frameNumber++;
@@ -147,12 +142,15 @@ void MonteCarlo::run()
       {
         computePressure();
         computeChemicalPotential();
+        driftEnergies.push_back(runningEnergyVirial.energy - totalEnergyVirial.energy);
         energies.push_back(runningEnergyVirial.energy);
+        volumes.push_back(volume);
+        particleCounts.push_back(numberOfParticles);
       }
     }
   }
 
-  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, sigma, epsilon, cutOffPrefactor);
+  totalEnergyVirial = systemEnergyVirial(positions, boxSize, cutOff, cutOffPrefactor);
   logger.info(repr());
   writePDB("movie.pdb", positions, boxSize, frameNumber);
 }
@@ -162,11 +160,10 @@ std::string MonteCarlo::repr()
   std::string s;
   EnergyVirial drift = (runningEnergyVirial - totalEnergyVirial);
 
-  double averageChemicalPotential = average(chemicalPotentials);
+  double averageWidomWeight = average(widomWeights);
   double realChemPot =
-      chemicalPotentials.size()
-          ? -temperature * (std::log(averageChemicalPotential / density) + (cutOffPrefactor.energy * density))
-          : 0.0;
+      widomWeights.size() ? -temperature * (std::log(averageWidomWeight / density) + (cutOffPrefactor.energy * density))
+                          : 0.0;
 
   s += "Monte Carlo program\n";
   s += "----------------------------\n";

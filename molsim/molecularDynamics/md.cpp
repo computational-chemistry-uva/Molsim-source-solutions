@@ -9,7 +9,8 @@
 
 MolecularDynamics::MolecularDynamics(int numberOfParticles, double temperature, double dt, double boxSize,
                                      int numberOfEquilibrationSteps, int numberOfProductionSteps, bool outputPDB,
-                                     int sampleFrequency, int logLevel, int seed, bool useNoseHoover)
+                                     int sampleFrequency, int logLevel, int seed, bool useNoseHoover,
+                                     int noseHooverTimeScaleParameter)
     : numberOfParticles(numberOfParticles),
       temperature(temperature),
       dt(dt),
@@ -20,7 +21,7 @@ MolecularDynamics::MolecularDynamics(int numberOfParticles, double temperature, 
       degreesOfFreedom(3 * numberOfParticles - 3),
       useNoseHoover(useNoseHoover),
       velocityScaling(temperature, degreesOfFreedom),
-      noseHoover(temperature, degreesOfFreedom, 500 * dt, dt, seed),
+      noseHoover(temperature, degreesOfFreedom, noseHooverTimeScaleParameter * dt, dt, seed),
       outputPDB(outputPDB),
       positions(numberOfParticles),
       momenta(numberOfParticles),
@@ -82,7 +83,6 @@ MolecularDynamics::MolecularDynamics(int numberOfParticles, double temperature, 
   gradientDescent();
 
   logger.info("(Init) completed. Final energy: " + std::to_string(potentialEnergy));
-  logger.debug(repr());
 };
 
 void MolecularDynamics::latticeInitialization()

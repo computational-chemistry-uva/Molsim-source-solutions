@@ -12,10 +12,8 @@ void MonteCarlo::translationMove()
   double3 trialPosition = positions[particleIdx] + displacement;
 
   // Calculate old and new energy and virial
-  EnergyVirial oldEnergyVirial =
-      particleEnergyVirial(positions, positions[particleIdx], particleIdx, boxSize, cutOff, sigma, epsilon);
-  EnergyVirial newEnergyVirial =
-      particleEnergyVirial(positions, trialPosition, particleIdx, boxSize, cutOff, sigma, epsilon);
+  EnergyVirial oldEnergyVirial = particleEnergyVirial(positions, positions[particleIdx], particleIdx, boxSize, cutOff);
+  EnergyVirial newEnergyVirial = particleEnergyVirial(positions, trialPosition, particleIdx, boxSize, cutOff);
 
   // Accept or reject the move based on Metropolis criterion
   if (uniform() < std::exp(-beta * (newEnergyVirial.energy - oldEnergyVirial.energy)))
@@ -53,8 +51,7 @@ void MonteCarlo::volumeMove()
   {
     trialPositions[i] *= scale;
   }
-  EnergyVirial newEnergyVirial =
-      systemEnergyVirial(trialPositions, newBoxSize, cutOff, sigma, epsilon, cutOffPrefactor);
+  EnergyVirial newEnergyVirial = systemEnergyVirial(trialPositions, newBoxSize, cutOff, cutOffPrefactor);
 
   if (uniform() < std::exp((numberOfParticles + 1.0) * std::log(newVolume / volume) -
                            beta * (pressure * volumeChange + (newEnergyVirial.energy - runningEnergyVirial.energy))))

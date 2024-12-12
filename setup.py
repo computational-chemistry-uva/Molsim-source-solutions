@@ -6,19 +6,19 @@ ext_modules = [
     Pybind11Extension(
         "molsim._molsim",
         sources=[
-            "src/pybindings.cpp",
-            "src/hardDisks/hardDisks.cpp",
-            "src/molecularDynamics/md.cpp",
-            "src/molecularDynamics/sample.cpp",
-            "src/molecularDynamics/thermostats.cpp",
-            "src/monteCarlo/mc.cpp",
-            "src/monteCarlo/moves.cpp",
+            "molsim/pybindings.cpp",
+            "molsim/hardDisks/hardDisks.cpp",
+            "molsim/molecularDynamics/md.cpp",
+            "molsim/molecularDynamics/sample.cpp",
+            "molsim/molecularDynamics/thermostats.cpp",
+            "molsim/monteCarlo/mc.cpp",
+            "molsim/monteCarlo/moves.cpp",
         ],
         include_dirs=[
-            "src/hardDisks",
-            "src/molecularDynamics",
-            "src/monteCarlo",
-            "src/utils",
+            "molsim/hardDisks",
+            "molsim/molecularDynamics",
+            "molsim/monteCarlo",
+            "molsim/utils",
         ],
         cxx_std=20,
     )
@@ -28,7 +28,7 @@ setup(
     name="molsim",
     version="1.0.0",
     description="Code accompanying exercises for the Molecular Simulation course.",
-    author="Drs. Youri Ran, Drs. Rik Breebaart, Dr. Jocelyne Vreede, Dr. David Dubbeldam",
+    author="van 't Hoff Institute of Molecular Sciences, University of Amsterdam",
     author_email="d.dubbeldam@uva.nl",
     python_requires=">=3.10",
     install_requires=[
@@ -39,5 +39,11 @@ setup(
     ],
     packages=find_packages(),
     ext_modules=ext_modules,
+    zip_safe=False,
     cmdclass={"build_ext": build_ext},
+        classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: C++",
+        "Operating System :: OS Independent",
+    ],
 )
